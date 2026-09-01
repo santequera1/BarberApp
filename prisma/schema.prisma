@@ -149,8 +149,12 @@ model Service {
   name            String
   description     String      @default("")
   durationMinutes Int
-  // COP como entero en pesos
+  // COP como entero en pesos (Precio final exclusivo App)
   price           Int
+  // Precio regular en local sin app (opcional para mostrar rebaja)
+  originalPrice   Int?
+  isOffer         Boolean     @default(false)
+  offerBadge      String      @default("") // Ej: "-20% EN APP", "PROMO HOY"
   category        String      @default("corte")
   imageUrl        String      @default("") // Foto del corte o servicio
   isActive        Boolean     @default(true)
