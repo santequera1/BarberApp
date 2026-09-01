@@ -22,10 +22,11 @@ export default async function IngresoPage() {
         <span>Volver a la App</span>
       </Link>
 
-      <div className="app-card p-6 sm:p-8 border border-white/15 shadow-2xl">
+      <div className="app-card relative mt-8 p-6 sm:p-8 border border-white/15 shadow-2xl bg-zinc-950">
         <div className="mb-6 text-center">
-          <div className="mx-auto mb-3 relative flex h-16 w-16 items-center justify-center overflow-hidden rounded-3xl border border-white/20 bg-zinc-950 shadow-xl shadow-red-500/10">
-            <img src="/logo.jpg" alt="Logo" className="h-full w-full object-cover" />
+          {/* Logo mas grande que sobresale de la tarjeta */}
+          <div className="mx-auto -mt-18 mb-4 relative flex h-28 w-28 items-center justify-center overflow-hidden rounded-3xl border-2 border-red-500/50 bg-black p-2 shadow-2xl shadow-red-500/30 ring-8 ring-zinc-950">
+            <img src="/logo.jpg" alt="BarberApp Logo" className="h-full w-full object-contain" />
           </div>
           <span className="text-[10px] font-black uppercase tracking-widest text-red-500">
             BarberApp

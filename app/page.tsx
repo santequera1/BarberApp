@@ -37,11 +37,11 @@ export default async function AppHomePage() {
       <header className="sticky top-0 z-40 border-b border-white/10 bg-black/85 backdrop-blur-xl">
         <div className="mx-auto flex h-16 max-w-lg items-center justify-between px-4">
           <div className="flex items-center gap-3">
-            <div className="relative flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-white/15 bg-zinc-950 shadow-md">
+            <div className="relative -mb-5 flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-2xl border-2 border-red-500/50 bg-black p-1 shadow-2xl shadow-red-500/30 ring-4 ring-black">
               <img
                 src="/logo.jpg"
                 alt="BarberApp"
-                className="h-full w-full object-cover"
+                className="h-full w-full object-contain rounded-xl"
               />
             </div>
             <div>

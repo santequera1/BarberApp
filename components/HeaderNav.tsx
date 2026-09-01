@@ -19,13 +19,13 @@ export function HeaderNav({
     <header className="mb-6 flex items-center justify-between gap-3">
       <div className="flex items-center gap-3">
         <Link
-          href="/inicio"
-          className="relative flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-white/15 bg-black shadow-lg shadow-[#00e575]/20 transition-transform active:scale-95"
+          href="/"
+          className="relative flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-2xl border-2 border-red-500/40 bg-black p-1 shadow-xl shadow-red-500/20 transition-transform active:scale-95"
         >
           <img
             src="/logo.jpg"
-            alt="Barber Market Logo"
-            className="h-full w-full object-cover"
+            alt="BarberApp Logo"
+            className="h-full w-full object-contain rounded-xl"
           />
         </Link>
         <div>
