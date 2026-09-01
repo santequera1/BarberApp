@@ -41,6 +41,9 @@ model Barbershop {
   longitude   Float    @default(-75.5476)
   rating      Float    @default(5.0)
   reviewCount Int      @default(0)
+  instagram   String   @default("")
+  tiktok      String   @default("")
+  facebook    String   @default("")
   // ACTIVA | INACTIVA
   status      String   @default("ACTIVA")
   ownerId     String?

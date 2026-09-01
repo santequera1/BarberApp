@@ -121,6 +121,8 @@ export default function CrearBarberiaPage() {
   const [description, setDescription] = useState("");
   const [ownerName, setOwnerName] = useState("");
   const [ownerEmail, setOwnerEmail] = useState("");
+  const [instagram, setInstagram] = useState("");
+  const [tiktok, setTiktok] = useState("");
   const [coverUrl, setCoverUrl] = useState(PRESET_SHOP_PHOTOS[0].url);
   const [logoUrl, setLogoUrl] = useState("/logo.jpg");
   const [uploadingCover, setUploadingCover] = useState(false);
@@ -278,6 +280,8 @@ export default function CrearBarberiaPage() {
           description: description.trim(),
           ownerName: ownerName.trim(),
           ownerEmail: ownerEmail.trim(),
+          instagram: instagram.trim(),
+          tiktok: tiktok.trim(),
           logoUrl: logoUrl.trim() || "/logo.jpg",
           coverUrl: coverUrl.trim(),
           services,
@@ -468,6 +472,32 @@ export default function CrearBarberiaPage() {
                 <p className="mt-2 text-[10px] text-zinc-400">
                   Podrás iniciar sesión con este correo o con tu botón de Google cuando quieras para ver tus citas y métricas.
                 </p>
+              </div>
+
+              {/* Redes Sociales Opcionales */}
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-xs font-bold text-zinc-300 mb-1.5 block">
+                    Instagram (opcional)
+                  </label>
+                  <input
+                    value={instagram}
+                    onChange={(e) => setInstagram(e.target.value)}
+                    placeholder="@mibarberia"
+                    className="h-12 w-full rounded-2xl border border-white/10 bg-zinc-900 px-4 text-base text-white placeholder:text-zinc-600 focus:border-red-500 focus:outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="text-xs font-bold text-zinc-300 mb-1.5 block">
+                    TikTok (opcional)
+                  </label>
+                  <input
+                    value={tiktok}
+                    onChange={(e) => setTiktok(e.target.value)}
+                    placeholder="@mibarberia"
+                    className="h-12 w-full rounded-2xl border border-white/10 bg-zinc-900 px-4 text-base text-white placeholder:text-zinc-600 focus:border-red-500 focus:outline-none"
+                  />
+                </div>
               </div>
 
               {/* Foto de la Barbería con subida directa y presets */}

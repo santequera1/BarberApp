@@ -31,6 +31,27 @@ export default async function AdminPage() {
       prisma.barbershop.findMany({
         orderBy: { createdAt: "desc" },
         include: {
+          owner: {
+            select: { id: true, name: true, email: true, phone: true },
+          },
+          barbers: {
+            include: {
+              user: { select: { name: true, email: true, phone: true } },
+              _count: { select: { appointments: true } },
+            },
+          },
+          services: {
+            where: { isActive: true },
+            orderBy: { sortOrder: "asc" },
+          },
+          appointments: {
+            orderBy: { startsAt: "desc" },
+            take: 20,
+            include: {
+              client: { select: { name: true, email: true, phone: true } },
+              barber: { select: { displayName: true } },
+            },
+          },
           _count: {
             select: { barbers: true, services: true, appointments: true },
           },
@@ -50,6 +71,7 @@ export default async function AdminPage() {
   const mapShops = barbershops.map((s) => ({
     id: s.id,
     name: s.name,
+    slug: s.slug,
     address: s.address,
     city: s.city,
     phone: s.phone,
