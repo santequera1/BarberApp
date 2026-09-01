@@ -16,9 +16,10 @@ export async function GET(req: NextRequest) {
     process.env.NEXT_PUBLIC_APP_URL ||
     req.headers.get("origin") ||
     req.nextUrl.origin ||
-    "http://localhost:3000";
+    "https://barber.wailus.co";
 
-  const redirectUri = `${origin}/api/auth/callback/google`;
+  // Usamos el redirect_uri exacto configurado en Google Cloud Console
+  const redirectUri = `${origin}/api/auth/callback`;
   const role = req.nextUrl.searchParams.get("role") || "CLIENTE";
 
   // State para CSRF y pasar el rol deseado
