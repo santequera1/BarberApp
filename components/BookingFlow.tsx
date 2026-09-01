@@ -721,7 +721,7 @@ export function BookingFlow({
                       value={guestName}
                       onChange={(e) => setGuestName(e.target.value)}
                       placeholder="Ej: Carlos Gómez"
-                      className="h-11 w-full bg-transparent px-3 text-sm text-white placeholder:text-zinc-600 focus:outline-none"
+                      className="h-11 w-full bg-transparent px-3 text-base text-white placeholder:text-zinc-600 focus:outline-none"
                     />
                   </div>
                 </div>
@@ -738,7 +738,7 @@ export function BookingFlow({
                       value={guestPhone}
                       onChange={(e) => setGuestPhone(e.target.value)}
                       placeholder="3001234567"
-                      className="h-11 w-full bg-transparent px-3 text-sm text-white placeholder:text-zinc-600 focus:outline-none"
+                      className="h-11 w-full bg-transparent px-3 text-base text-white placeholder:text-zinc-600 focus:outline-none"
                     />
                   </div>
                 </div>
@@ -755,7 +755,7 @@ export function BookingFlow({
                       value={guestEmail}
                       onChange={(e) => setGuestEmail(e.target.value)}
                       placeholder="carlos@gmail.com"
-                      className="h-11 w-full bg-transparent px-3 text-sm text-white placeholder:text-zinc-600 focus:outline-none"
+                      className="h-11 w-full bg-transparent px-3 text-base text-white placeholder:text-zinc-600 focus:outline-none"
                     />
                   </div>
                 </div>
@@ -777,7 +777,7 @@ export function BookingFlow({
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               placeholder="Ej: Fade medio comprimido, perfilado suave de cejas..."
-              className="w-full rounded-2xl border border-white/10 bg-zinc-900 p-3.5 text-sm text-white placeholder:text-zinc-600 transition-colors focus:border-red-500 focus:outline-none"
+              className="w-full rounded-2xl border border-white/10 bg-zinc-900 p-3.5 text-base text-white placeholder:text-zinc-600 transition-colors focus:border-red-500 focus:outline-none"
             />
           </div>
         </div>

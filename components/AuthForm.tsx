@@ -71,7 +71,7 @@ export function AuthForm({ mode }: { mode: "login" | "register" }) {
     "relative flex items-center rounded-2xl border border-white/10 bg-zinc-900 transition-colors focus-within:border-red-500 focus-within:ring-2 focus-within:ring-red-500/20";
   const iconClass = "h-4 w-4 text-zinc-500 ml-4 pointer-events-none";
   const inputClass =
-    "h-12 w-full bg-transparent px-3 text-sm text-white placeholder:text-zinc-600 focus:outline-none";
+    "h-12 w-full bg-transparent px-3 text-base text-white placeholder:text-zinc-600 focus:outline-none";
 
   return (
     <div className="flex flex-col gap-4">

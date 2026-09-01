@@ -217,3 +217,19 @@
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
+
+/* iOS Safari Auto-Zoom Prevention: Inputs must be at least 16px */
+input,
+select,
+textarea {
+  font-size: 16px !important;
+  -webkit-text-size-adjust: 100%;
+}
+
+@media screen and (max-width: 768px) {
+  input,
+  select,
+  textarea {
+    font-size: 16px !important;
+  }
+}
