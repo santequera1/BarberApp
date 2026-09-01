@@ -91,8 +91,12 @@ export default function RootLayout({
       <head>
         <link rel="apple-touch-icon" href="/logo.jpg" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
-        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
         <script dangerouslySetInnerHTML={{ __html: swScript }} />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{var t=localStorage.getItem('theme');if(t==='light'){document.documentElement.classList.add('light');document.documentElement.classList.remove('dark');}else{document.documentElement.classList.add('dark');document.documentElement.classList.remove('light');}}catch(e){}})();`,
+          }}
+        />
       </head>
       <body
         className={`${archivo.variable} ${interTight.variable} ${jetbrains.variable} min-h-dvh antialiased`}

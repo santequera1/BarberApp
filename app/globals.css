@@ -51,7 +51,7 @@
     --destructive: #DC2626;
     --destructive-foreground: #FFFFFF;
     --border: #E2E8F0;
-    --input: #E2E8F0;
+    --input: #FFFFFF;
     --ring: #DC2626;
 
     --barber-red: #DC2626;
@@ -91,7 +91,7 @@
 }
 
 .light .glass {
-  background: rgba(255, 255, 255, 0.88);
+  background: rgba(255, 255, 255, 0.9);
 }
 
 .app-card {
@@ -103,6 +103,16 @@
 
 .app-card:hover {
   border-color: rgba(255, 255, 255, 0.22);
+}
+
+.light .app-card {
+  background-color: #FFFFFF;
+  border-color: #E2E8F0;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
+}
+
+.light .app-card:hover {
+  border-color: #CBD5E1;
 }
 
 /* Barber Pole Gradient Accents */
@@ -185,6 +195,16 @@
   border-color: rgba(255, 255, 255, 0.2);
 }
 
+.light .btn-dark {
+  background-color: #F1F5F9;
+  color: #0F172A;
+  border-color: #E2E8F0;
+}
+
+.light .btn-dark:hover {
+  background-color: #E2E8F0;
+}
+
 /* Animations */
 @keyframes fadeInUp {
   from {
@@ -207,6 +227,13 @@
 .dark .leaflet-control-zoom-out,
 .dark .leaflet-control-attribution {
   filter: invert(100%) hue-rotate(180deg) brightness(95%) contrast(90%);
+}
+
+.light .leaflet-layer,
+.light .leaflet-control-zoom-in,
+.light .leaflet-control-zoom-out,
+.light .leaflet-control-attribution {
+  filter: none;
 }
 
 /* Hide scrollbars */
@@ -232,4 +259,77 @@ textarea {
   textarea {
     font-size: 16px !important;
   }
+}
+
+/* ========================================================================= */
+/* COMPREHENSIVE LIGHT THEME RULES FOR HIGH CONTRAST & CLEAN LUXURY LIGHT UI */
+/* ========================================================================= */
+
+.light {
+  background-color: #F8FAFC !important;
+  color: #09090B !important;
+}
+
+.light body {
+  background-color: #F8FAFC !important;
+  color: #09090B !important;
+}
+
+.light .min-h-dvh.bg-black {
+  background-color: #F8FAFC !important;
+  color: #09090B !important;
+}
+
+.light header {
+  background-color: rgba(255, 255, 255, 0.9) !important;
+  border-color: #E2E8F0 !important;
+}
+
+.light nav.fixed {
+  background-color: rgba(255, 255, 255, 0.95) !important;
+  border-color: #E2E8F0 !important;
+}
+
+.light .bg-zinc-950,
+.light .bg-zinc-900,
+.light .bg-zinc-900\/90,
+.light .bg-zinc-900\/80,
+.light .bg-zinc-900\/60 {
+  background-color: #FFFFFF !important;
+  border-color: #E2E8F0 !important;
+}
+
+.light .bg-zinc-800,
+.light .bg-zinc-800\/80,
+.light .bg-zinc-800\/90 {
+  background-color: #F1F5F9 !important;
+}
+
+.light .text-white {
+  color: #09090B !important;
+}
+
+.light .text-zinc-400,
+.light .text-zinc-300,
+.light .text-zinc-500 {
+  color: #64748B !important;
+}
+
+.light .border-white\/10,
+.light .border-white\/15,
+.light .border-white\/20,
+.light .border-white\/5 {
+  border-color: #E2E8F0 !important;
+}
+
+.light .ring-black {
+  --tw-ring-color: #FFFFFF !important;
+}
+
+.light input,
+.light select,
+.light textarea {
+  background-color: #FFFFFF !important;
+  color: #09090B !important;
+  border-color: #CBD5E1 !important;
 }
