@@ -21,9 +21,9 @@ import { AdminShopManager } from "@/components/AdminShopManager";
 
 export default async function AdminPage() {
   const session = await getSession();
-  if (!session) redirect("/");
+  if (!session) redirect("/ingreso?next=/admin");
   if (session.role !== "ADMIN" && session.role !== "DUEÑO") {
-    redirect("/inicio");
+    redirect("/ingreso?error=Acceso+restringido+a+administradores");
   }
 
   const [barbershops, totalBarbers, appointments, totalClients] =

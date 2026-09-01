@@ -6,7 +6,11 @@ import { AuthForm } from "@/components/AuthForm";
 
 export default async function IngresoPage() {
   const session = await getSession();
-  if (session) redirect(session.role === "BARBERO" ? "/barbero" : "/");
+  if (session) {
+    if (session.role === "ADMIN") redirect("/admin");
+    if (session.role === "BARBERO" || session.role === "DUEÑO") redirect("/barbero");
+    redirect("/");
+  }
 
   return (
     <main className="mx-auto flex min-h-dvh w-full max-w-md flex-col justify-center px-4 py-8 text-white">

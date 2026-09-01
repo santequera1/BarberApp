@@ -59,7 +59,16 @@ export function AuthForm({ mode }: { mode: "login" | "register" }) {
         return;
       }
 
-      router.push(data.role === "CLIENTE" ? "/" : "/barbero");
+      const nextParam = searchParams.get("next");
+      if (nextParam) {
+        router.push(nextParam);
+      } else if (data.role === "ADMIN") {
+        router.push("/admin");
+      } else if (data.role === "BARBERO" || data.role === "DUEÑO") {
+        router.push("/barbero");
+      } else {
+        router.push("/");
+      }
       router.refresh();
     } catch {
       setLoading(false);
