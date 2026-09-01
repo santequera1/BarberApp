@@ -1,0 +1,198 @@
+// Esquema de datos — Marketplace de Barberías Multi-Sede
+// SQLite para desarrollo local sin configuración externa.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  name         String
+  phone        String?
+  // CLIENTE | BARBERO | DUEÑO | ADMIN
+  role         String   @default("CLIENTE")
+  createdAt    DateTime @default(now())
+
+  barber            Barber?
+  appointments      Appointment[]        @relation("ClientAppointments")
+  validations       AppointmentCheckin[]
+  ownedBarbershops  Barbershop[]         @relation("OwnerBarbershops")
+}
+
+model Barbershop {
+  id          String   @id @default(cuid())
+  name        String
+  slug        String   @unique
+  description String   @default("")
+  address     String
+  city        String   @default("Cartagena")
+  phone       String   @default("")
+  logoUrl     String   @default("")
+  coverUrl    String   @default("")
+  latitude    Float    @default(10.4241)
+  longitude   Float    @default(-75.5476)
+  rating      Float    @default(4.9)
+  reviewCount Int      @default(120)
+  // ACTIVA | INACTIVA
+  status      String   @default("ACTIVA")
+  ownerId     String?
+  owner       User?    @relation("OwnerBarbershops", fields: [ownerId], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  barbers      Barber[]
+  services     Service[]
+  appointments Appointment[]
+  hours        BarbershopHours[]
+}
+
+model Barber {
+  id           String      @id @default(cuid())
+  userId       String      @unique
+  user         User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  barbershopId String?
+  barbershop   Barbershop? @relation(fields: [barbershopId], references: [id], onDelete: Cascade)
+  displayName  String
+  bio          String      @default("")
+  // separadas por coma: "fade,barba,niños"
+  specialties  String      @default("")
+  // ACTIVO | INACTIVO | VACACIONES
+  status       String      @default("ACTIVO")
+  sortOrder    Int         @default(0)
+
+  schedules    BarberSchedule[]
+  timeOff      BarberTimeOff[]
+  appointments Appointment[]
+}
+
+model BarberSchedule {
+  id        String @id @default(cuid())
+  barberId  String
+  barber    Barber @relation(fields: [barberId], references: [id], onDelete: Cascade)
+  // 0 = domingo … 6 = sábado (hora local de Bogotá)
+  dayOfWeek Int
+  startTime String // "HH:mm"
+  endTime   String // "HH:mm"
+
+  @@index([barberId, dayOfWeek])
+}
+
+model BarberTimeOff {
+  id       String   @id @default(cuid())
+  barberId String
+  barber   Barber   @relation(fields: [barberId], references: [id], onDelete: Cascade)
+  startsAt DateTime
+  endsAt   DateTime
+  reason   String   @default("")
+
+  @@index([barberId, startsAt])
+}
+
+model BarbershopHours {
+  id           String      @id @default(cuid())
+  barbershopId String?
+  barbershop   Barbershop? @relation(fields: [barbershopId], references: [id], onDelete: Cascade)
+  dayOfWeek    Int
+  openTime     String
+  closeTime    String
+  isClosed     Boolean     @default(false)
+
+  @@unique([barbershopId, dayOfWeek])
+}
+
+model BarbershopSettings {
+  id                  String @id @default("singleton")
+  name                String @default("La Barbería")
+  address             String @default("Cartagena, Colombia")
+  phone               String @default("")
+  // minutos
+  minBookingNotice    Int    @default(30)
+  // días
+  maxBookingHorizon   Int    @default(30)
+  // minutos
+  cancellationWindow  Int    @default(120)
+  bufferMinutes       Int    @default(5)
+  lateTolerance       Int    @default(30)
+  checkinWindowBefore Int    @default(20)
+}
+
+model Service {
+  id              String      @id @default(cuid())
+  barbershopId    String?
+  barbershop      Barbershop? @relation(fields: [barbershopId], references: [id], onDelete: Cascade)
+  name            String
+  description     String      @default("")
+  durationMinutes Int
+  // COP como entero en pesos
+  price           Int
+  category        String      @default("corte")
+  isActive        Boolean     @default(true)
+  sortOrder       Int         @default(0)
+
+  appointmentServices AppointmentService[]
+}
+
+model Appointment {
+  id                 String      @id @default(cuid())
+  // código corto legible de la cita, ej. "A-7K4M"
+  code               String      @unique
+  barbershopId       String?
+  barbershop         Barbershop? @relation(fields: [barbershopId], references: [id])
+  clientId           String
+  client             User        @relation("ClientAppointments", fields: [clientId], references: [id])
+  barberId           String
+  barber             Barber      @relation(fields: [barberId], references: [id])
+  startsAt           DateTime
+  endsAt             DateTime
+  // PENDIENTE | CONFIRMADA | EN_CURSO | COMPLETADA | CANCELADA | NO_ASISTIO | EXPIRADA
+  status             String      @default("CONFIRMADA")
+  subtotal           Int
+  discountAmount     Int         @default(0)
+  total              Int
+  // PENDIENTE | PAGADO
+  paymentStatus      String      @default("PENDIENTE")
+  clientNotes        String      @default("")
+  createdAt          DateTime    @default(now())
+  cancelledAt        DateTime?
+  cancelledBy        String?
+  cancellationReason String?
+
+  services AppointmentService[]
+  checkin  AppointmentCheckin?
+
+  @@index([barberId, startsAt])
+  @@index([clientId, status])
+  @@index([startsAt])
+}
+
+model AppointmentService {
+  id               String      @id @default(cuid())
+  appointmentId    String
+  appointment      Appointment @relation(fields: [appointmentId], references: [id], onDelete: Cascade)
+  serviceId        String
+  service          Service     @relation(fields: [serviceId], references: [id])
+  // snapshot: el precio cobrado se congela al crear la cita
+  nameSnapshot     String
+  priceSnapshot    Int
+  durationSnapshot Int
+}
+
+model AppointmentCheckin {
+  id            String      @id @default(cuid())
+  appointmentId String      @unique
+  appointment   Appointment @relation(fields: [appointmentId], references: [id], onDelete: Cascade)
+  checkinToken  String      @unique
+  backupCode    String      @unique
+  usedAt        DateTime?
+  validatedById String?
+  validatedBy   User?       @relation(fields: [validatedById], references: [id])
+  deviceInfo    String?
+  createdAt     DateTime    @default(now())
+}
