@@ -32,6 +32,9 @@ export async function sendBarberInvitationEmail({
       port,
       secure,
       auth: { user, pass },
+      tls: {
+        rejectUnauthorized: false,
+      },
     });
 
     const greeting = barberName ? `¡Hola ${barberName}!` : "¡Hola!";
