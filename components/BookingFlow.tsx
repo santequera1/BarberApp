@@ -24,6 +24,8 @@ import {
   ChevronRight,
   Store,
   MapPin,
+  Mail,
+  Phone,
 } from "lucide-react";
 
 export interface BarbershopOption {
@@ -100,6 +102,7 @@ export function BookingFlow({
   barbers,
   initialBarberId,
   initialServiceId,
+  currentUser = null,
 }: {
   barbershops?: BarbershopOption[];
   selectedShopId?: string;
@@ -107,6 +110,7 @@ export function BookingFlow({
   barbers: BarberOption[];
   initialBarberId?: string;
   initialServiceId?: string;
+  currentUser?: { name: string; userId: string } | null;
 }) {
   const router = useRouter();
   const [currentShopId, setCurrentShopId] = useState<string>(
@@ -129,6 +133,12 @@ export function BookingFlow({
   const [slotsLoading, setSlotsLoading] = useState(false);
   const [selectedSlot, setSelectedSlot] = useState<Slot | null>(null);
   const [notes, setNotes] = useState("");
+
+  // Guest state (si no está logueado)
+  const [guestName, setGuestName] = useState("");
+  const [guestPhone, setGuestPhone] = useState("");
+  const [guestEmail, setGuestEmail] = useState("");
+
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
@@ -193,6 +203,14 @@ export function BookingFlow({
 
   async function confirmBooking() {
     if (!selectedSlot) return;
+
+    if (!currentUser) {
+      if (!guestName.trim() || !guestPhone.trim() || !guestEmail.trim()) {
+        setError("Por favor completa tu nombre, WhatsApp y correo para enviarte el Pase QR.");
+        return;
+      }
+    }
+
     setSubmitting(true);
     setError(null);
     try {
@@ -206,6 +224,13 @@ export function BookingFlow({
           date,
           time: selectedSlot.time,
           clientNotes: notes,
+          ...(!currentUser
+            ? {
+                guestName: guestName.trim(),
+                guestPhone: guestPhone.trim(),
+                guestEmail: guestEmail.trim(),
+              }
+            : {}),
         }),
       });
       const data = await res.json();
@@ -312,7 +337,6 @@ export function BookingFlow({
       {/* Step 1: Services Selection */}
       {step === 0 && (
         <div className="flex flex-col gap-4">
-          {/* Category Filter */}
           {categories.length > 2 && (
             <div className="no-scrollbar flex gap-2 overflow-x-auto pb-1">
               {categories.map((cat) => (
@@ -389,7 +413,6 @@ export function BookingFlow({
       {/* Step 2: Barber Selection */}
       {step === 1 && (
         <div className="flex flex-col gap-3">
-          {/* Option: Any Barber */}
           <button
             onClick={() => setSelectedBarber("any")}
             aria-pressed={selectedBarber === "any"}
@@ -422,7 +445,6 @@ export function BookingFlow({
             )}
           </button>
 
-          {/* Individual Barbers */}
           {barbers.map((barber) => {
             const active = selectedBarber === barber.id;
             return (
@@ -464,7 +486,6 @@ export function BookingFlow({
       {/* Step 3: Date and Time Selection */}
       {step === 2 && (
         <div className="flex flex-col gap-6">
-          {/* Horizontal Date Picker */}
           <div>
             <label className="text-xs font-black uppercase tracking-wider text-[#00e575] mb-2.5 block">
               1. Selecciona el Día
@@ -498,7 +519,6 @@ export function BookingFlow({
             </div>
           </div>
 
-          {/* Time Slots */}
           <div>
             <label className="text-xs font-black uppercase tracking-wider text-[#00e575] mb-2.5 block">
               2. Selecciona la Hora
@@ -600,7 +620,7 @@ export function BookingFlow({
         </div>
       )}
 
-      {/* Step 4: Confirmation Summary */}
+      {/* Step 4: Confirmation Summary & Guest Fields */}
       {step === 3 && selectedSlot && (
         <div className="flex flex-col gap-4">
           <div className="world-card p-6 shadow-xl border border-[#00e575]/30">
@@ -661,6 +681,70 @@ export function BookingFlow({
             </div>
           </div>
 
+          {/* Guest Checkout Fields (si no ha iniciado sesión) */}
+          {!currentUser && (
+            <div className="world-card p-5 border border-[#00e575]/30 animate-fade-in-up">
+              <div className="flex items-center gap-2 mb-3">
+                <Sparkles className="h-4 w-4 text-[#00e575]" />
+                <h3 className="text-xs font-black uppercase tracking-wider text-foreground">
+                  Datos para tu Pase Digital QR
+                </h3>
+              </div>
+
+              <div className="flex flex-col gap-3">
+                <div>
+                  <label className="text-[11px] font-bold text-muted-foreground mb-1 block">
+                    Tu Nombre y Apellido *
+                  </label>
+                  <div className="relative flex items-center rounded-xl border border-input bg-card">
+                    <User className="h-4 w-4 text-muted-foreground ml-3" />
+                    <input
+                      required
+                      value={guestName}
+                      onChange={(e) => setGuestName(e.target.value)}
+                      placeholder="Ej: Carlos Gómez"
+                      className="h-11 w-full bg-transparent px-3 text-sm text-foreground placeholder:text-muted-foreground/60 focus:outline-none"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="text-[11px] font-bold text-muted-foreground mb-1 block">
+                    WhatsApp / Celular *
+                  </label>
+                  <div className="relative flex items-center rounded-xl border border-input bg-card">
+                    <Phone className="h-4 w-4 text-muted-foreground ml-3" />
+                    <input
+                      required
+                      inputMode="numeric"
+                      value={guestPhone}
+                      onChange={(e) => setGuestPhone(e.target.value)}
+                      placeholder="3001234567"
+                      className="h-11 w-full bg-transparent px-3 text-sm text-foreground placeholder:text-muted-foreground/60 focus:outline-none"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="text-[11px] font-bold text-muted-foreground mb-1 block">
+                    Correo Electrónico *
+                  </label>
+                  <div className="relative flex items-center rounded-xl border border-input bg-card">
+                    <Mail className="h-4 w-4 text-muted-foreground ml-3" />
+                    <input
+                      required
+                      type="email"
+                      value={guestEmail}
+                      onChange={(e) => setGuestEmail(e.target.value)}
+                      placeholder="carlos@correo.com"
+                      className="h-11 w-full bg-transparent px-3 text-sm text-foreground placeholder:text-muted-foreground/60 focus:outline-none"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
           <div>
             <label
               htmlFor="notes"
@@ -671,10 +755,10 @@ export function BookingFlow({
             <textarea
               id="notes"
               maxLength={300}
-              rows={3}
+              rows={2}
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
-              placeholder="Ej: Fade medio, perfilado a navaja, toalla caliente..."
+              placeholder="Ej: Fade medio, perfilado a navaja..."
               className="w-full rounded-2xl border border-input bg-card p-3.5 text-sm text-foreground placeholder:text-muted-foreground/60 transition-colors focus:border-[#00e575] focus:outline-none"
             />
           </div>

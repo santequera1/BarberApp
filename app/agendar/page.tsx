@@ -1,4 +1,3 @@
-import { redirect } from "next/navigation";
 import { getSession } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 import { BookingFlow } from "@/components/BookingFlow";
@@ -13,7 +12,6 @@ export default async function AgendarPage({
   }>;
 }) {
   const session = await getSession();
-  if (!session) redirect("/");
 
   const {
     barbershopId: paramShopId,
@@ -72,6 +70,7 @@ export default async function AgendarPage({
       barbers={barbers}
       initialBarberId={initialBarberId}
       initialServiceId={initialServiceId}
+      currentUser={session ? { name: session.name, userId: session.userId } : null}
     />
   );
 }

@@ -1,18 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getSlotsForBarber } from "@/lib/booking";
-import { getSession } from "@/lib/session";
 import { utcToBogota } from "@/lib/core/dates";
 import { ACTIVE_STATUSES } from "@/lib/core/status";
 import { bogotaToUtc, addDays } from "@/lib/core/dates";
 
 // GET /api/availability?date=YYYY-MM-DD&serviceIds=a,b&barberId=xxx|any&barbershopId=yyy
 export async function GET(req: NextRequest) {
-  const session = await getSession();
-  if (!session) {
-    return NextResponse.json({ error: "No autenticado" }, { status: 401 });
-  }
-
   const { searchParams } = req.nextUrl;
   const date = searchParams.get("date");
   const serviceIds = (searchParams.get("serviceIds") ?? "")

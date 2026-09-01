@@ -202,15 +202,25 @@ export function AdminShopManager({
                   <span>{shop.rating}</span>
                 </span>
 
-                <button
-                  onClick={() => toggleStatus(shop.id)}
-                  disabled={isLoading}
-                  className={`flex h-9 items-center justify-center gap-1.5 rounded-full px-4 text-xs font-bold transition-colors ${
-                    isActive
-                      ? "border border-destructive/40 bg-destructive/10 text-destructive hover:bg-destructive/20"
-                      : "border border-[#00e575]/40 bg-[#00e575]/10 text-[#00e575] hover:bg-[#00e575]/20"
-                  }`}
-                >
+                <div className="flex items-center gap-2">
+                  <a
+                    href={`/b/${shop.slug}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex h-9 items-center justify-center gap-1 rounded-full border border-border bg-card px-3 text-xs font-bold text-foreground hover:bg-secondary"
+                  >
+                    <span>Ver QR / Web ↗</span>
+                  </a>
+
+                  <button
+                    onClick={() => toggleStatus(shop.id)}
+                    disabled={isLoading}
+                    className={`flex h-9 items-center justify-center gap-1.5 rounded-full px-4 text-xs font-bold transition-colors ${
+                      isActive
+                        ? "border border-destructive/40 bg-destructive/10 text-destructive hover:bg-destructive/20"
+                        : "border border-[#00e575]/40 bg-[#00e575]/10 text-[#00e575] hover:bg-[#00e575]/20"
+                    }`}
+                  >
                   {isLoading ? (
                     <Loader2 className="h-3.5 w-3.5 animate-spin" />
                   ) : isActive ? (
@@ -224,7 +234,8 @@ export function AdminShopManager({
                       <span>Activar</span>
                     </>
                   )}
-                </button>
+                  </button>
+                </div>
               </div>
             </div>
           );

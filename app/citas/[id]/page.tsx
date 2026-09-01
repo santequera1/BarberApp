@@ -33,8 +33,6 @@ export default async function TicketPage({
   params: Promise<{ id: string }>;
 }) {
   const session = await getSession();
-  if (!session) redirect("/");
-
   const { id } = await params;
   const appointment = await prisma.appointment.findUnique({
     where: { id },
@@ -47,9 +45,9 @@ export default async function TicketPage({
   });
 
   if (!appointment) notFound();
-  const isOwner = appointment.clientId === session.userId;
-  const isStaff = session.role === "BARBERO" || session.role === "ADMIN" || session.role === "DUEÑO";
-  if (!isOwner && !isStaff) notFound();
+
+  const isOwner = session ? appointment.clientId === session.userId : true;
+  const isStaff = session ? (session.role === "BARBERO" || session.role === "ADMIN" || session.role === "DUEÑO") : false;
 
   const settings = await getSettings();
   const status = appointment.status as AppointmentStatus;
@@ -123,7 +121,7 @@ export default async function TicketPage({
       {/* Top Bar */}
       <div className="mb-6 flex items-center justify-between">
         <Link
-          href={session.role === "CLIENTE" ? "/citas" : "/barbero"}
+          href={session?.role === "BARBERO" ? "/barbero" : session ? "/citas" : "/"}
           aria-label="Volver"
           className="flex h-11 w-11 items-center justify-center rounded-full border border-border bg-card text-foreground transition-all hover:bg-secondary active:scale-95"
         >
