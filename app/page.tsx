@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { BottomNav } from "@/components/BottomNav";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { MarketplaceExplorer } from "@/components/MarketplaceExplorer";
 
 export default async function AppHomePage() {
   const session = await getSession();
@@ -24,7 +25,7 @@ export default async function AppHomePage() {
   const barbershops = await prisma.barbershop.findMany({
     where: { status: "ACTIVA" },
     include: {
-      services: { where: { isActive: true }, take: 4 },
+      services: { where: { isActive: true }, orderBy: { sortOrder: "asc" } },
       barbers: { where: { status: "ACTIVO" } },
     },
     orderBy: { createdAt: "desc" },
@@ -192,24 +193,15 @@ export default async function AppHomePage() {
           </Link>
         </div>
 
-        {/* Explore Barbershops Section */}
+        {/* Marketplace Explorer with Search, Filters, Map and Cards */}
         <div>
-          <div className="flex items-center justify-between mb-3">
-            <div>
-              <h2 className="text-sm font-black text-white">
-                Barberías Disponibles
-              </h2>
-              <p className="text-[11px] text-zinc-400">
-                {barbershops.length} {barbershops.length === 1 ? "sede activa" : "sedes activas"}
-              </p>
-            </div>
-
-            <Link
-              href="/agendar"
-              className="text-[11px] font-black text-blue-400 hover:underline"
-            >
-              Ver mapa completo
-            </Link>
+          <div className="mb-3">
+            <span className="text-[10px] font-black uppercase tracking-widest text-red-500">
+              Marketplace de Sedes
+            </span>
+            <h2 className="text-base font-black text-white">
+              Explorar & Agendar Citas
+            </h2>
           </div>
 
           {barbershops.length === 0 ? (
@@ -230,67 +222,7 @@ export default async function AppHomePage() {
               </Link>
             </div>
           ) : (
-            <div className="flex flex-col gap-4">
-              {barbershops.map((shop) => (
-                <div
-                  key={shop.id}
-                  className="group overflow-hidden rounded-3xl border border-white/10 bg-zinc-900 transition-all hover:border-white/20"
-                >
-                  {/* Shop Cover Image */}
-                  <div className="relative h-36 w-full overflow-hidden bg-zinc-800">
-                    <img
-                      src={shop.coverUrl || "https://images.unsplash.com/photo-1585747860715-2ba37e788b70?w=800&auto=format&fit=crop&q=60"}
-                      alt={shop.name}
-                      className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/40 to-transparent" />
-                    
-                    <div className="absolute top-3 right-3 flex items-center gap-1 rounded-full bg-black/70 px-2.5 py-1 text-[11px] font-black text-amber-400 backdrop-blur-md">
-                      <Star className="h-3 w-3 fill-amber-400" />
-                      <span>{shop.rating}</span>
-                    </div>
-
-                    <div className="absolute bottom-3 left-3 right-3 flex items-end justify-between">
-                      <div>
-                        <h3 className="text-base font-black text-white drop-shadow">
-                          {shop.name}
-                        </h3>
-                        <p className="flex items-center gap-1 text-[11px] text-zinc-300">
-                          <MapPin className="h-3 w-3 text-red-500 shrink-0" />
-                          <span>{shop.address}, {shop.city}</span>
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Shop Quick Actions & Info */}
-                  <div className="p-4 flex items-center justify-between gap-2 border-t border-white/5">
-                    <div className="flex items-center gap-3 text-xs text-zinc-400">
-                      <span>{shop.barbers.length} {shop.barbers.length === 1 ? "barbero" : "barberos"}</span>
-                      <span>·</span>
-                      <span>{shop.services.length} servicios</span>
-                    </div>
-
-                    <div className="flex items-center gap-2">
-                      <Link
-                        href={`/b/${shop.slug}`}
-                        className="flex h-9 items-center justify-center rounded-full border border-white/10 bg-zinc-800 px-3.5 text-xs font-bold text-white hover:bg-zinc-700"
-                      >
-                        Ver QR / Perfil
-                      </Link>
-
-                      <Link
-                        href={`/agendar?barbershopId=${shop.id}`}
-                        className="btn-red flex h-9 items-center justify-center gap-1.5 rounded-full px-4 text-xs font-black uppercase tracking-wider"
-                      >
-                        <span>Reservar</span>
-                        <ArrowRight className="h-3.5 w-3.5" />
-                      </Link>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
+            <MarketplaceExplorer initialShops={barbershops} />
           )}
         </div>
       </main>
