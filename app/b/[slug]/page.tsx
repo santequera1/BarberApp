@@ -85,10 +85,13 @@ export async function generateMetadata({
 
 export default async function PublicBarbershopPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ slug: string }>;
+  searchParams: Promise<{ serviceId?: string }>;
 }) {
   const { slug } = await params;
+  const { serviceId } = await searchParams;
   const session = await getSession();
 
   const shop = await prisma.barbershop.findUnique({
@@ -269,6 +272,7 @@ export default async function PublicBarbershopPage({
           selectedShopId={shop.id}
           services={shop.services}
           barbers={shop.barbers}
+          initialServiceId={serviceId}
           currentUser={session ? { name: session.name, userId: session.userId } : null}
         />
       </div>
