@@ -37,13 +37,13 @@ export default async function AppHomePage() {
       <header className="sticky top-0 z-40 border-b border-white/10 bg-black/85 backdrop-blur-xl">
         <div className="mx-auto flex h-16 max-w-lg items-center justify-between px-4">
           <div className="flex items-center gap-3">
-            <div className="relative -mb-5 flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-2xl border-2 border-red-500/50 bg-black p-1 shadow-2xl shadow-red-500/30 ring-4 ring-black">
+            <Link href="/" className="relative -mb-6 flex shrink-0 items-center justify-center transition-transform active:scale-95">
               <img
-                src="/logo.jpg"
+                src="/logo.png"
                 alt="BarberApp"
-                className="h-full w-full object-contain rounded-xl"
+                className="h-16 w-auto object-contain drop-shadow-[0_8px_16px_rgba(239,68,68,0.3)]"
               />
-            </div>
+            </Link>
             <div>
               <span className="text-base font-black tracking-tight text-white flex items-center gap-1.5">
                 <span>BarberApp</span>

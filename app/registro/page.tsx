@@ -18,11 +18,15 @@ export default async function RegistroPage() {
         <span>Volver a la App</span>
       </Link>
 
-      <div className="app-card relative mt-8 p-6 sm:p-8 border border-white/15 shadow-2xl bg-zinc-950">
+      <div className="app-card relative mt-10 p-6 sm:p-8 border border-white/15 shadow-2xl bg-zinc-950">
         <div className="mb-6 text-center">
-          {/* Logo mas grande que sobresale de la tarjeta */}
-          <div className="mx-auto -mt-18 mb-4 relative flex h-28 w-28 items-center justify-center overflow-hidden rounded-3xl border-2 border-blue-500/50 bg-black p-2 shadow-2xl shadow-blue-500/30 ring-8 ring-zinc-950">
-            <img src="/logo.jpg" alt="BarberApp Logo" className="h-full w-full object-contain" />
+          {/* Logo transparente sin fondo que sobresale de la tarjeta */}
+          <div className="mx-auto -mt-20 mb-3 flex items-center justify-center">
+            <img
+              src="/logo.png"
+              alt="BarberApp Logo"
+              className="h-28 w-auto object-contain drop-shadow-[0_12px_24px_rgba(59,130,246,0.4)]"
+            />
           </div>
           <div className="inline-flex items-center gap-1.5 rounded-full bg-blue-500/10 px-3 py-1 text-[11px] font-black text-blue-400 mb-2">
             <Sparkles className="h-3.5 w-3.5" />

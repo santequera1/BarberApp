@@ -20,12 +20,12 @@ export function HeaderNav({
       <div className="flex items-center gap-3">
         <Link
           href="/"
-          className="relative flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-2xl border-2 border-red-500/40 bg-black p-1 shadow-xl shadow-red-500/20 transition-transform active:scale-95"
+          className="relative flex shrink-0 items-center justify-center transition-transform active:scale-95"
         >
           <img
-            src="/logo.jpg"
+            src="/logo.png"
             alt="BarberApp Logo"
-            className="h-full w-full object-contain rounded-xl"
+            className="h-14 w-auto object-contain drop-shadow-[0_8px_16px_rgba(239,68,68,0.25)]"
           />
         </Link>
         <div>
