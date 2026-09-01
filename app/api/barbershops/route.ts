@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
+import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
-import { getSession } from "@/lib/session";
+import { getSession, createSession } from "@/lib/session";
 import { sendBarberInvitationEmail } from "@/lib/email";
 
 function slugify(text: string): string {
@@ -22,6 +23,9 @@ const createSchema = z.object({
   logoUrl: z.string().optional().default(""),
   coverUrl: z.string().optional().default(""),
   photos: z.array(z.string()).optional().default([]),
+  ownerName: z.string().optional().default(""),
+  ownerEmail: z.string().optional().default(""),
+  ownerPassword: z.string().optional().default(""),
   services: z
     .array(
       z.object({
@@ -48,7 +52,7 @@ const createSchema = z.object({
 });
 
 export async function POST(req: NextRequest) {
-  const session = await getSession();
+  let session = await getSession();
   const body = await req.json().catch(() => null);
   const parsed = createSchema.safeParse(body);
 
@@ -68,11 +72,51 @@ export async function POST(req: NextRequest) {
     logoUrl,
     coverUrl,
     photos,
+    ownerName,
+    ownerEmail,
+    ownerPassword,
     services,
     barberEmails,
     openTime,
     closeTime,
   } = parsed.data;
+
+  // Si no está autenticado pero proporcionó correo de dueño, registrar o vincular cuenta
+  let ownerUserId = session?.userId || null;
+  let ownerDisplayName = session?.name || ownerName.trim() || "Master Barber";
+
+  if (!session && ownerEmail.trim()) {
+    const cleanEmail = ownerEmail.trim().toLowerCase();
+    let user = await prisma.user.findUnique({ where: { email: cleanEmail } });
+
+    if (!user) {
+      const pass = ownerPassword.trim() || Math.random().toString(36).slice(2, 10);
+      user = await prisma.user.create({
+        data: {
+          name: ownerName.trim() || name.trim(),
+          email: cleanEmail,
+          phone: phone.trim() || null,
+          passwordHash: await bcrypt.hash(pass, 10),
+          role: "DUEÑO",
+        },
+      });
+    } else if (user.role !== "ADMIN") {
+      user = await prisma.user.update({
+        where: { id: user.id },
+        data: { role: "DUEÑO" },
+      });
+    }
+
+    ownerUserId = user.id;
+    ownerDisplayName = user.name;
+
+    // Iniciar sesión automática para el creador
+    await createSession({
+      userId: user.id,
+      role: user.role as any,
+      name: user.name,
+    });
+  }
 
   // Generar slug único
   let baseSlug = slugify(name);
@@ -96,7 +140,7 @@ export async function POST(req: NextRequest) {
         logoUrl: logoUrl || "/logo.jpg",
         coverUrl: coverUrl || "",
         photos: JSON.stringify(photos || []),
-        ownerId: session?.userId || null,
+        ownerId: ownerUserId,
         status: "ACTIVA",
       },
     });
@@ -127,28 +171,24 @@ export async function POST(req: NextRequest) {
           dayOfWeek: day,
           openTime,
           closeTime,
-          isClosed: day === 0 ? false : false, // Abierto todos los días por defecto
+          isClosed: false,
         },
       });
     }
 
-    // 4. Si el creador es usuario autenticado, vincularlo como Barbero/Dueño principal
-    if (session) {
-      await prisma.user.update({
-        where: { id: session.userId },
-        data: { role: session.role === "ADMIN" ? "ADMIN" : "DUEÑO" },
-      });
-
+    // 4. Si hay dueño asociado, vincularlo como Barbero principal y crear sus horarios
+    if (ownerUserId) {
       const ownerBarber = await prisma.barber.upsert({
-        where: { userId: session.userId },
+        where: { userId: ownerUserId },
         update: {
           barbershopId: barbershop.id,
           status: "ACTIVO",
+          displayName: ownerDisplayName,
         },
         create: {
-          userId: session.userId,
+          userId: ownerUserId,
           barbershopId: barbershop.id,
-          displayName: session.name || "Master Barber",
+          displayName: ownerDisplayName,
           specialties: "Cortes modernos, Barba, Asesoría",
           status: "ACTIVO",
         },

@@ -113,12 +113,14 @@ export default function CrearBarberiaPage() {
   const router = useRouter();
   const [step, setStep] = useState(0);
 
-  // Paso 1: Datos de la Sede
+  // Paso 1: Datos de la Sede y Dueño
   const [name, setName] = useState("");
   const [address, setAddress] = useState("");
   const [city, setCity] = useState("Cartagena");
   const [phone, setPhone] = useState("");
   const [description, setDescription] = useState("");
+  const [ownerName, setOwnerName] = useState("");
+  const [ownerEmail, setOwnerEmail] = useState("");
   const [coverUrl, setCoverUrl] = useState(PRESET_SHOP_PHOTOS[0].url);
   const [logoUrl, setLogoUrl] = useState("/logo.jpg");
   const [uploadingCover, setUploadingCover] = useState(false);
@@ -274,6 +276,8 @@ export default function CrearBarberiaPage() {
           city: city.trim(),
           phone: phone.trim(),
           description: description.trim(),
+          ownerName: ownerName.trim(),
+          ownerEmail: ownerEmail.trim(),
           logoUrl: logoUrl.trim() || "/logo.jpg",
           coverUrl: coverUrl.trim(),
           services,
@@ -428,6 +432,42 @@ export default function CrearBarberiaPage() {
                   placeholder="Ej: Calle 32 # 4-45, Barrio Centro"
                   className="h-12 w-full rounded-2xl border border-white/10 bg-zinc-900 px-4 text-base text-white placeholder:text-zinc-600 focus:border-red-500 focus:outline-none"
                 />
+              </div>
+
+              {/* Datos del Dueño (para administrar sin Google previo) */}
+              <div className="rounded-2xl border border-blue-500/30 bg-blue-950/20 p-4">
+                <span className="text-xs font-bold text-white flex items-center gap-1.5 mb-2">
+                  <UserPlus className="h-4 w-4 text-blue-400" />
+                  <span>Datos del Administrador / Dueño</span>
+                </span>
+                <div className="grid grid-cols-2 gap-2.5">
+                  <div>
+                    <label className="text-[11px] font-bold text-zinc-300 mb-1 block">
+                      Tu Nombre
+                    </label>
+                    <input
+                      value={ownerName}
+                      onChange={(e) => setOwnerName(e.target.value)}
+                      placeholder="Ej: Mateo Gómez"
+                      className="h-11 w-full rounded-xl border border-white/10 bg-zinc-900 px-3 text-base text-white placeholder:text-zinc-600 focus:border-blue-500 focus:outline-none"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[11px] font-bold text-zinc-300 mb-1 block">
+                      Tu Correo Electrónico
+                    </label>
+                    <input
+                      type="email"
+                      value={ownerEmail}
+                      onChange={(e) => setOwnerEmail(e.target.value)}
+                      placeholder="mateo@gmail.com"
+                      className="h-11 w-full rounded-xl border border-white/10 bg-zinc-900 px-3 text-base text-white placeholder:text-zinc-600 focus:border-blue-500 focus:outline-none"
+                    />
+                  </div>
+                </div>
+                <p className="mt-2 text-[10px] text-zinc-400">
+                  Podrás iniciar sesión con este correo o con tu botón de Google cuando quieras para ver tus citas y métricas.
+                </p>
               </div>
 
               {/* Foto de la Barbería con subida directa y presets */}
