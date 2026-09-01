@@ -20,8 +20,8 @@ export default async function RegistroPage() {
 
       <div className="world-card p-6 sm:p-8">
         <div className="mb-6 text-center">
-          <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-3xl bg-[#00e575] text-black shadow-xl shadow-[#00e575]/25">
-            <Scissors className="h-7 w-7 stroke-[2.5]" />
+          <div className="mx-auto mb-3 relative flex h-16 w-16 items-center justify-center overflow-hidden rounded-3xl border border-white/20 bg-black shadow-xl shadow-[#00e575]/25">
+            <img src="/logo.jpg" alt="Logo" className="h-full w-full object-cover" />
           </div>
           <div className="inline-flex items-center gap-1.5 rounded-full bg-[#00e575]/10 px-3 py-1 text-[11px] font-black text-[#00e575] mb-2">
             <Sparkles className="h-3.5 w-3.5" />

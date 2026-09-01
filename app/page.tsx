@@ -50,8 +50,8 @@ export default async function LandingPage() {
       <header className="glass sticky top-0 z-50 transition-all border-b border-border">
         <div className="mx-auto flex h-16 max-w-5xl items-center justify-between px-4 sm:px-6">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-[#00e575] text-black shadow-lg shadow-[#00e575]/25">
-              <Scissors className="h-5 w-5 stroke-[2.5]" />
+            <div className="relative flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-white/15 bg-black shadow-lg shadow-[#00e575]/25">
+              <img src="/logo.jpg" alt="Barber Market Logo" className="h-full w-full object-cover" />
             </div>
             <div>
               <span className="text-base font-black tracking-tight text-foreground">

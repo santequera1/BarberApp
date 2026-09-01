@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { Scissors, Shield, Store } from "lucide-react";
+import Image from "next/image";
+import { Shield, Store } from "lucide-react";
 import { ThemeToggle } from "./ThemeToggle";
 import { LogoutButton } from "./LogoutButton";
 
@@ -19,9 +20,13 @@ export function HeaderNav({
       <div className="flex items-center gap-3">
         <Link
           href="/inicio"
-          className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#00e575] text-black shadow-lg shadow-[#00e575]/20 transition-transform active:scale-95"
+          className="relative flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-white/15 bg-black shadow-lg shadow-[#00e575]/20 transition-transform active:scale-95"
         >
-          <Scissors className="h-5 w-5 stroke-[2.5]" />
+          <img
+            src="/logo.jpg"
+            alt="Barber Market Logo"
+            className="h-full w-full object-cover"
+          />
         </Link>
         <div>
           {userName ? (
