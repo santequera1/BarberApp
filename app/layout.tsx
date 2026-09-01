@@ -21,9 +21,9 @@ const jetbrains = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "La Barbería — Reserva tu silla",
+  title: "BarberApp — Marketplace de Barberías & Agendamiento Express",
   description:
-    "Agenda tu cita en La Barbería sin escribir a WhatsApp. Elige servicio, barbero y hora, y llega con tu QR.",
+    "BarberApp: Agenda tu cita en barberías profesionales sin filas. Elige servicio, barbero y hora con tu Pase QR digital.",
 };
 
 export const viewport: Viewport = {

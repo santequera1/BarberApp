@@ -55,10 +55,10 @@ export default async function LandingPage() {
             </div>
             <div>
               <span className="text-base font-black tracking-tight text-foreground">
-                BARBER MARKET
+                BarberApp
               </span>
               <span className="block text-[9px] font-black uppercase tracking-widest text-[#00e575]">
-                World Class Platform
+                Marketplace & Reservas
               </span>
             </div>
           </div>
@@ -94,7 +94,7 @@ export default async function LandingPage() {
           {/* Badge */}
           <div className="inline-flex items-center gap-2 rounded-full border border-[#00e575]/30 bg-[#00e575]/10 px-4 py-1.5 text-xs font-black text-[#00e575] mb-6">
             <Sparkles className="h-3.5 w-3.5" />
-            <span>Marketplace de Barberías Premium con Pase QR</span>
+            <span>BarberApp — Marketplace de Barberías con Pase QR</span>
           </div>
 
           <h1 className="text-4xl font-black tracking-tight sm:text-6xl sm:leading-[1.15]">
