@@ -1,3 +1,4 @@
+import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import QRCode from "qrcode";
@@ -15,6 +16,50 @@ import {
 import { BookingFlow } from "@/components/BookingFlow";
 import { BarbershopShareQr } from "@/components/BarbershopShareQr";
 import { ThemeToggle } from "@/components/ThemeToggle";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
+  const { slug } = await params;
+  const shop = await prisma.barbershop.findUnique({
+    where: { slug },
+  });
+
+  if (!shop) {
+    return { title: "Barbería no encontrada — BarberApp" };
+  }
+
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://barber.wailus.co";
+  const cover = shop.coverUrl || `${appUrl}/logo.jpg`;
+
+  return {
+    title: `${shop.name} — BarberApp`,
+    description: `Agenda tu cita en ${shop.name} (${shop.city}). Elige tus cortes favoritos y reserva tu turno sin filas con Pase QR.`,
+    openGraph: {
+      title: `${shop.name} — BarberApp`,
+      description: `Agenda tu cita en ${shop.name} (${shop.city}). Elige tus cortes favoritos y reserva tu turno sin filas con Pase QR.`,
+      url: `${appUrl}/b/${shop.slug}`,
+      siteName: "BarberApp",
+      images: [
+        {
+          url: cover,
+          width: 1200,
+          height: 630,
+          alt: shop.name,
+        },
+      ],
+      type: "website",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: `${shop.name} — BarberApp`,
+      description: `Agenda tu cita en ${shop.name} (${shop.city}). Reserva sin filas con Pase QR.`,
+      images: [cover],
+    },
+  };
+}
 
 export default async function PublicBarbershopPage({
   params,

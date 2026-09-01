@@ -21,9 +21,45 @@ const jetbrains = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "BarberApp — Marketplace de Barberías & Agendamiento Express",
+  metadataBase: new URL("https://barber.wailus.co"),
+  title: "BarberApp — App de Barberías & Agendamiento Express",
   description:
-    "BarberApp: Agenda tu cita en barberías profesionales sin filas. Elige servicio, barbero y hora con tu Pase QR digital.",
+    "Agenda tu corte en segundos sin filas ni esperas. Pases QR digitales, fotos de cortes y gestión completa de barberías.",
+  manifest: "/manifest.json",
+  applicationName: "BarberApp",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "BarberApp",
+  },
+  icons: {
+    icon: "/logo.jpg",
+    apple: "/logo.jpg",
+  },
+  openGraph: {
+    title: "BarberApp — App de Barberías & Agendamiento Express",
+    description:
+      "Agenda tu corte en segundos sin filas ni esperas. Pases QR digitales, fotos de cortes y gestión completa de barberías.",
+    url: "https://barber.wailus.co",
+    siteName: "BarberApp",
+    images: [
+      {
+        url: "/logo.jpg",
+        width: 1200,
+        height: 1200,
+        alt: "BarberApp Logo",
+      },
+    ],
+    locale: "es_CO",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "BarberApp — App de Barberías & Agendamiento Express",
+    description:
+      "Agenda tu corte en segundos sin filas ni esperas. Pases QR digitales, fotos de cortes y gestión de barberías.",
+    images: ["/logo.jpg"],
+  },
 };
 
 export const viewport: Viewport = {
@@ -37,13 +73,12 @@ export const viewport: Viewport = {
   ],
 };
 
-const themeScript = `
-try {
-  const t = localStorage.getItem("theme");
-  if (t === "dark" || (!t && matchMedia("(prefers-color-scheme: dark)").matches)) {
-    document.documentElement.classList.add("dark");
-  }
-} catch {}
+const swScript = `
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function() {
+    navigator.serviceWorker.register('/sw.js').catch(function() {});
+  });
+}
 `;
 
 export default function RootLayout({
@@ -54,7 +89,10 @@ export default function RootLayout({
   return (
     <html lang="es-CO" suppressHydrationWarning>
       <head>
-        <script dangerouslySetInnerHTML={{ __html: themeScript }} />
+        <link rel="apple-touch-icon" href="/logo.jpg" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+        <script dangerouslySetInnerHTML={{ __html: swScript }} />
       </head>
       <body
         className={`${archivo.variable} ${interTight.variable} ${jetbrains.variable} min-h-dvh antialiased`}
