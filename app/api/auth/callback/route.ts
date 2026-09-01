@@ -68,24 +68,31 @@ export async function GET(req: NextRequest) {
     const email = profile.email.toLowerCase().trim();
     const name = profile.name || email.split("@")[0];
 
-    // 3. Buscar o crear usuario en la base de datos
+    // 3. Verificar si este correo tiene una invitación pendiente para unirse a una barbería
+    const pendingInvitation = await prisma.barbershopInvitation.findFirst({
+      where: { email, status: "PENDIENTE" },
+      include: { barbershop: true },
+    });
+
+    let desiredRole = pendingInvitation ? "BARBERO" : "CLIENTE";
+
+    if (!pendingInvitation && stateParam) {
+      try {
+        const parsedState = JSON.parse(
+          Buffer.from(stateParam, "base64").toString("utf-8")
+        );
+        if (parsedState.role === "BARBERO" || parsedState.role === "DUEÑO") {
+          desiredRole = parsedState.role;
+        }
+      } catch {}
+    }
+
+    // 4. Buscar o crear usuario en la base de datos
     let user = await prisma.user.findUnique({
       where: { email },
     });
 
     if (!user) {
-      let desiredRole = "CLIENTE";
-      if (stateParam) {
-        try {
-          const parsedState = JSON.parse(
-            Buffer.from(stateParam, "base64").toString("utf-8")
-          );
-          if (parsedState.role === "BARBERO" || parsedState.role === "DUEÑO") {
-            desiredRole = parsedState.role;
-          }
-        } catch {}
-      }
-
       const randomPassword = await bcrypt.hash(
         Math.random().toString(36) + Date.now().toString(36),
         10
@@ -99,18 +106,65 @@ export async function GET(req: NextRequest) {
           role: desiredRole,
         },
       });
+    } else if (pendingInvitation && user.role !== "ADMIN") {
+      // Actualizar a rol BARBERO si fue invitado
+      user = await prisma.user.update({
+        where: { id: user.id },
+        data: { role: "BARBERO" },
+      });
     }
 
-    // 4. Iniciar sesión con JWT en cookie segura
+    // 5. Si fue invitado a una barbería, vincularlo como Barbero activo y crear sus horarios
+    if (pendingInvitation) {
+      const barber = await prisma.barber.upsert({
+        where: { userId: user.id },
+        update: {
+          barbershopId: pendingInvitation.barbershopId,
+          status: "ACTIVO",
+          displayName: pendingInvitation.barberName || user.name,
+        },
+        create: {
+          userId: user.id,
+          barbershopId: pendingInvitation.barbershopId,
+          displayName: pendingInvitation.barberName || user.name,
+          specialties: "Cortes modernos, Perfilado, Barba",
+          status: "ACTIVO",
+        },
+      });
+
+      // Crear horarios por defecto de Lunes a Sábado si no tiene
+      const existingSched = await prisma.barberSchedule.count({
+        where: { barberId: barber.id },
+      });
+
+      if (existingSched === 0) {
+        await prisma.barberSchedule.createMany({
+          data: [1, 2, 3, 4, 5, 6].map((day) => ({
+            barberId: barber.id,
+            dayOfWeek: day,
+            startTime: "09:00",
+            endTime: "19:00",
+          })),
+        });
+      }
+
+      // Marcar invitación como aceptada
+      await prisma.barbershopInvitation.update({
+        where: { id: pendingInvitation.id },
+        data: { status: "ACEPTADA" },
+      });
+    }
+
+    // 6. Iniciar sesión con JWT en cookie segura
     await createSession({
       userId: user.id,
       role: user.role as "CLIENTE" | "BARBERO" | "DUEÑO" | "ADMIN",
       name: user.name,
     });
 
-    // 5. Redireccionar según el rol
+    // 7. Redireccionar según el rol
     const destination =
-      user.role === "BARBERO"
+      user.role === "BARBERO" || pendingInvitation
         ? "/barbero"
         : user.role === "ADMIN"
         ? "/admin"

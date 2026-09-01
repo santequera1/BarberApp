@@ -26,28 +26,28 @@ const STATUS_CONFIG: Record<
   { badgeBg: string; badgeText: string; icon: typeof CheckCircle2 }
 > = {
   CONFIRMADA: {
-    badgeBg: "bg-emerald-500/20 border-emerald-500/40",
-    badgeText: "text-[#00e575]",
+    badgeBg: "bg-blue-500/20 border-blue-500/40",
+    badgeText: "text-blue-400",
     icon: CheckCircle2,
   },
   EN_CURSO: {
-    badgeBg: "bg-emerald-500/20 border-emerald-500/40 animate-pulse",
-    badgeText: "text-[#00e575]",
+    badgeBg: "bg-red-500/20 border-red-500/40 animate-pulse",
+    badgeText: "text-red-400",
     icon: Scissors,
   },
   COMPLETADA: {
-    badgeBg: "bg-secondary text-muted-foreground border-border",
-    badgeText: "text-muted-foreground",
+    badgeBg: "bg-zinc-800 text-zinc-400 border-white/10",
+    badgeText: "text-zinc-400",
     icon: CheckCircle2,
   },
   CANCELADA: {
-    badgeBg: "bg-destructive/20 border-destructive/40",
-    badgeText: "text-destructive",
+    badgeBg: "bg-red-950/40 border-red-500/40",
+    badgeText: "text-red-400",
     icon: XCircle,
   },
   NO_ASISTIO: {
-    badgeBg: "bg-destructive/20 border-destructive/40",
-    badgeText: "text-destructive",
+    badgeBg: "bg-red-950/40 border-red-500/40",
+    badgeText: "text-red-400",
     icon: AlertCircle,
   },
 };

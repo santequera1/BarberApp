@@ -1,47 +1,47 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getSession } from "@/lib/session";
-import { Scissors, ArrowLeft, Sparkles } from "lucide-react";
+import { ArrowLeft, Sparkles } from "lucide-react";
 import { AuthForm } from "@/components/AuthForm";
 
 export default async function RegistroPage() {
   const session = await getSession();
-  if (session) redirect(session.role === "BARBERO" ? "/barbero" : "/inicio");
+  if (session) redirect(session.role === "BARBERO" ? "/barbero" : "/");
 
   return (
-    <main className="mx-auto flex min-h-dvh w-full max-w-lg flex-col justify-center px-4 py-10">
+    <main className="mx-auto flex min-h-dvh w-full max-w-md flex-col justify-center px-4 py-8 text-white">
       <Link
         href="/"
-        className="mb-8 inline-flex items-center gap-1.5 text-xs font-bold text-muted-foreground hover:text-foreground transition-colors"
+        className="mb-6 inline-flex items-center gap-1.5 text-xs font-bold text-zinc-400 hover:text-white transition-colors"
       >
         <ArrowLeft className="h-4 w-4" />
-        <span>Volver al inicio</span>
+        <span>Volver a la App</span>
       </Link>
 
-      <div className="world-card p-6 sm:p-8">
+      <div className="app-card p-6 sm:p-8 border border-white/15 shadow-2xl">
         <div className="mb-6 text-center">
-          <div className="mx-auto mb-3 relative flex h-16 w-16 items-center justify-center overflow-hidden rounded-3xl border border-white/20 bg-black shadow-xl shadow-[#00e575]/25">
+          <div className="mx-auto mb-3 relative flex h-16 w-16 items-center justify-center overflow-hidden rounded-3xl border border-white/20 bg-zinc-950 shadow-xl shadow-blue-500/10">
             <img src="/logo.jpg" alt="Logo" className="h-full w-full object-cover" />
           </div>
-          <div className="inline-flex items-center gap-1.5 rounded-full bg-[#00e575]/10 px-3 py-1 text-[11px] font-black text-[#00e575] mb-2">
+          <div className="inline-flex items-center gap-1.5 rounded-full bg-blue-500/10 px-3 py-1 text-[11px] font-black text-blue-400 mb-2">
             <Sparkles className="h-3.5 w-3.5" />
-            <span>En menos de 1 minuto</span>
+            <span>Pases QR y Agendamiento en 1 Clic</span>
           </div>
-          <h1 className="text-2xl font-black tracking-tight text-foreground">
-            Crear tu Cuenta
+          <h1 className="text-2xl font-black tracking-tight text-white">
+            Crear Cuenta
           </h1>
-          <p className="mt-1 text-xs text-muted-foreground">
-            Únete para agendar en cualquier barbería y recibir tus pases digitales con QR.
+          <p className="mt-1 text-xs text-zinc-400">
+            Regístrate gratis para agendar en las mejores barberías.
           </p>
         </div>
 
         <AuthForm mode="register" />
 
-        <div className="mt-6 border-t border-border/60 pt-4 text-center text-xs text-muted-foreground">
-          ¿Ya tienes una cuenta?{" "}
+        <div className="mt-6 border-t border-white/10 pt-4 text-center text-xs text-zinc-400">
+          ¿Ya tienes cuenta?{" "}
           <Link
             href="/ingreso"
-            className="font-extrabold text-[#00e575] hover:underline"
+            className="font-extrabold text-red-400 hover:underline"
           >
             Inicia sesión aquí
           </Link>

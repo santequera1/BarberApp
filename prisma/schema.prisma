@@ -1,5 +1,5 @@
 // Esquema de datos — Marketplace de Barberías Multi-Sede
-// SQLite para desarrollo local sin configuración externa.
+// SQLite para desarrollo local y PostgreSQL para producción.
 
 generator client {
   provider = "prisma-client-js"
@@ -36,10 +36,11 @@ model Barbershop {
   phone       String   @default("")
   logoUrl     String   @default("")
   coverUrl    String   @default("")
+  photos      String   @default("[]") // JSON string de URLs de fotos
   latitude    Float    @default(10.4241)
   longitude   Float    @default(-75.5476)
-  rating      Float    @default(4.9)
-  reviewCount Int      @default(120)
+  rating      Float    @default(5.0)
+  reviewCount Int      @default(0)
   // ACTIVA | INACTIVA
   status      String   @default("ACTIVA")
   ownerId     String?
@@ -51,6 +52,21 @@ model Barbershop {
   services     Service[]
   appointments Appointment[]
   hours        BarbershopHours[]
+  invitations  BarbershopInvitation[]
+}
+
+model BarbershopInvitation {
+  id           String     @id @default(cuid())
+  barbershopId String
+  barbershop   Barbershop @relation(fields: [barbershopId], references: [id], onDelete: Cascade)
+  email        String
+  barberName   String     @default("")
+  role         String     @default("BARBERO")
+  // PENDIENTE | ACEPTADA | REVOCADA
+  status       String     @default("PENDIENTE")
+  createdAt    DateTime   @default(now())
+
+  @@unique([barbershopId, email])
 }
 
 model Barber {
@@ -61,7 +77,7 @@ model Barber {
   barbershop   Barbershop? @relation(fields: [barbershopId], references: [id], onDelete: Cascade)
   displayName  String
   bio          String      @default("")
-  // separadas por coma: "fade,barba,niños"
+  // separadas por coma: "fade,barba,diseños"
   specialties  String      @default("")
   // ACTIVO | INACTIVO | VACACIONES
   status       String      @default("ACTIVO")
@@ -133,6 +149,7 @@ model Service {
   // COP como entero en pesos
   price           Int
   category        String      @default("corte")
+  imageUrl        String      @default("") // Foto del corte o servicio
   isActive        Boolean     @default(true)
   sortOrder       Int         @default(0)
 

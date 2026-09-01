@@ -10,6 +10,7 @@
     "db:push": "prisma db push",
     "db:seed": "tsx prisma/seed.ts",
     "db:demo": "tsx prisma/seed-demo.ts",
+    "db:clean": "tsx prisma/reset-clean.ts",
     "db:setup": "prisma db push && tsx prisma/seed.ts"
   },
   "prisma": {

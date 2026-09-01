@@ -2,62 +2,112 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Globe, CalendarPlus, Ticket, Store, Shield } from "lucide-react";
+import { Scissors, Calendar, Ticket, UserCheck, Shield } from "lucide-react";
 
-export function BottomNav({ role = "CLIENTE" }: { role?: string }) {
+export function BottomNav({ role }: { role?: string }) {
   const pathname = usePathname();
 
-  const items = [
-    { href: "/inicio", label: "Explorar", icon: Globe },
-    { href: "/agendar", label: "Agendar", icon: CalendarPlus, highlight: true },
-    { href: "/citas", label: "Mis Citas", icon: Ticket },
-    ...(role === "ADMIN"
-      ? [{ href: "/admin", label: "Admin", icon: Shield }]
-      : [{ href: "/crear-barberia", label: "Mi Sede", icon: Store }]),
-  ];
+  const isExplore = pathname === "/" || pathname === "/inicio";
+  const isBook = pathname.startsWith("/agendar");
+  const isTickets = pathname.startsWith("/citas");
+  const isBarber = pathname.startsWith("/barbero");
+  const isAdmin = pathname.startsWith("/admin");
 
   return (
-    <nav
-      aria-label="Navegación principal"
-      className="glass fixed inset-x-4 bottom-4 z-40 mx-auto flex max-w-md items-center justify-around rounded-full p-2 shadow-2xl transition-all duration-300 border border-border"
-    >
-      {items.map((item) => {
-        const active =
-          pathname === item.href || (item.href !== "/inicio" && pathname.startsWith(item.href));
-        const Icon = item.icon;
-
-        if (item.highlight) {
-          return (
-            <Link
-              key={item.href}
-              href={item.href}
-              aria-current={active ? "page" : undefined}
-              className={`group relative flex h-13 w-13 items-center justify-center rounded-full btn-world shadow-lg transition-transform duration-200 active:scale-95 ${
-                active ? "ring-4 ring-[#00e575]/40" : ""
-              }`}
-              title={item.label}
-            >
-              <Icon className="h-6 w-6 stroke-[2.5] text-black" />
-            </Link>
-          );
-        }
-
-        return (
-          <Link
-            key={item.href}
-            href={item.href}
-            aria-current={active ? "page" : undefined}
-            className={`flex flex-col items-center justify-center gap-1 rounded-full px-3.5 py-2 text-[10px] font-bold uppercase tracking-wider transition-all duration-200 ${
-              active
-                ? "text-[#00e575] font-black scale-105"
-                : "text-muted-foreground hover:text-foreground"
+    <nav className="fixed inset-x-0 bottom-0 z-50 border-t border-white/10 bg-black/90 pb-[max(12px,env(safe-area-inset-bottom))] pt-2 backdrop-blur-xl">
+      <div className="mx-auto flex max-w-lg items-center justify-around px-2">
+        <Link
+          href="/"
+          className={`flex flex-col items-center gap-1 rounded-2xl px-3 py-1.5 transition-colors ${
+            isExplore
+              ? "text-white font-extrabold"
+              : "text-zinc-400 hover:text-zinc-200"
+          }`}
+        >
+          <div
+            className={`flex h-8 w-8 items-center justify-center rounded-xl transition-all ${
+              isExplore ? "bg-red-500 text-white shadow-md shadow-red-500/30" : "bg-transparent"
             }`}
           >
-            <Icon className={`h-5 w-5 transition-transform duration-200 ${active ? "stroke-[2.5]" : "stroke-[1.8]"}`} />
-            <span>{item.label}</span>
+            <Scissors className="h-4 w-4" />
+          </div>
+          <span className="text-[10px] tracking-tight">Explorar</span>
+        </Link>
+
+        <Link
+          href="/agendar"
+          className={`flex flex-col items-center gap-1 rounded-2xl px-3 py-1.5 transition-colors ${
+            isBook
+              ? "text-white font-extrabold"
+              : "text-zinc-400 hover:text-zinc-200"
+          }`}
+        >
+          <div
+            className={`flex h-8 w-8 items-center justify-center rounded-xl transition-all ${
+              isBook ? "bg-blue-600 text-white shadow-md shadow-blue-600/30" : "bg-transparent"
+            }`}
+          >
+            <Calendar className="h-4 w-4" />
+          </div>
+          <span className="text-[10px] tracking-tight">Agendar</span>
+        </Link>
+
+        <Link
+          href="/citas"
+          className={`flex flex-col items-center gap-1 rounded-2xl px-3 py-1.5 transition-colors ${
+            isTickets
+              ? "text-white font-extrabold"
+              : "text-zinc-400 hover:text-zinc-200"
+          }`}
+        >
+          <div
+            className={`flex h-8 w-8 items-center justify-center rounded-xl transition-all ${
+              isTickets ? "bg-white text-black shadow-md shadow-white/30" : "bg-transparent"
+            }`}
+          >
+            <Ticket className="h-4 w-4" />
+          </div>
+          <span className="text-[10px] tracking-tight">Mis Pases</span>
+        </Link>
+
+        <Link
+          href="/barbero"
+          className={`flex flex-col items-center gap-1 rounded-2xl px-3 py-1.5 transition-colors ${
+            isBarber
+              ? "text-white font-extrabold"
+              : "text-zinc-400 hover:text-zinc-200"
+          }`}
+        >
+          <div
+            className={`flex h-8 w-8 items-center justify-center rounded-xl transition-all ${
+              isBarber ? "bg-red-600 text-white shadow-md shadow-red-600/30" : "bg-transparent"
+            }`}
+          >
+            <UserCheck className="h-4 w-4" />
+          </div>
+          <span className="text-[10px] tracking-tight">Soy Barbero</span>
+        </Link>
+
+        {role === "ADMIN" && (
+          <Link
+            href="/admin"
+            className={`flex flex-col items-center gap-1 rounded-2xl px-3 py-1.5 transition-colors ${
+              isAdmin
+                ? "text-white font-extrabold"
+                : "text-zinc-400 hover:text-zinc-200"
+            }`}
+          >
+            <div
+              className={`flex h-8 w-8 items-center justify-center rounded-xl transition-all ${
+                isAdmin ? "bg-blue-600 text-white" : "bg-transparent"
+              }`}
+            >
+              <Shield className="h-4 w-4" />
+            </div>
+            <span className="text-[10px] tracking-tight">Admin</span>
           </Link>
-        );
-      })}
+        )}
+      </div>
     </nav>
   );
 }

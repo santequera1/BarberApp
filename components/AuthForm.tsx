@@ -59,7 +59,7 @@ export function AuthForm({ mode }: { mode: "login" | "register" }) {
         return;
       }
 
-      router.push(data.role === "CLIENTE" ? "/inicio" : "/barbero");
+      router.push(data.role === "CLIENTE" ? "/" : "/barbero");
       router.refresh();
     } catch {
       setLoading(false);
@@ -68,17 +68,17 @@ export function AuthForm({ mode }: { mode: "login" | "register" }) {
   }
 
   const inputWrapper =
-    "relative flex items-center rounded-2xl border border-input bg-card transition-colors focus-within:border-[#00e575] focus-within:ring-2 focus-within:ring-[#00e575]/20";
-  const iconClass = "h-4 w-4 text-muted-foreground ml-4 pointer-events-none";
+    "relative flex items-center rounded-2xl border border-white/10 bg-zinc-900 transition-colors focus-within:border-red-500 focus-within:ring-2 focus-within:ring-red-500/20";
+  const iconClass = "h-4 w-4 text-zinc-500 ml-4 pointer-events-none";
   const inputClass =
-    "h-12 w-full bg-transparent px-3 text-sm text-foreground placeholder:text-muted-foreground/60 focus:outline-none";
+    "h-12 w-full bg-transparent px-3 text-sm text-white placeholder:text-zinc-600 focus:outline-none";
 
   return (
     <div className="flex flex-col gap-4">
       {/* Botón de Google OAuth */}
       <a
         href="/api/auth/google"
-        className="flex h-12 w-full items-center justify-center gap-3 rounded-2xl border border-border bg-card text-xs font-bold text-foreground transition-all hover:bg-secondary hover:border-zinc-500 active:scale-95"
+        className="flex h-12 w-full items-center justify-center gap-3 rounded-2xl border border-white/15 bg-zinc-900 text-xs font-extrabold text-white transition-all hover:bg-zinc-800 hover:border-zinc-700 active:scale-95 shadow-md"
       >
         <svg className="h-4 w-4" viewBox="0 0 24 24">
           <path
@@ -102,8 +102,8 @@ export function AuthForm({ mode }: { mode: "login" | "register" }) {
       </a>
 
       <div className="relative my-2 flex items-center justify-center">
-        <div className="w-full border-t border-border" />
-        <span className="absolute bg-card px-3 text-[10px] font-black uppercase tracking-wider text-muted-foreground">
+        <div className="w-full border-t border-white/10" />
+        <span className="absolute bg-zinc-950 px-3 text-[10px] font-black uppercase tracking-wider text-zinc-500">
           O con tu correo
         </span>
       </div>
@@ -112,7 +112,7 @@ export function AuthForm({ mode }: { mode: "login" | "register" }) {
         {mode === "register" && (
           <>
             <div>
-              <label className="text-xs font-black uppercase tracking-wider text-muted-foreground mb-1.5 block" htmlFor="name">
+              <label className="text-xs font-black uppercase tracking-wider text-zinc-300 mb-1.5 block" htmlFor="name">
                 Nombre Completo
               </label>
               <div className={inputWrapper}>
@@ -129,8 +129,8 @@ export function AuthForm({ mode }: { mode: "login" | "register" }) {
             </div>
 
             <div>
-              <label className="text-xs font-black uppercase tracking-wider text-muted-foreground mb-1.5 block" htmlFor="phone">
-                Celular (opcional)
+              <label className="text-xs font-black uppercase tracking-wider text-zinc-300 mb-1.5 block" htmlFor="phone">
+                Celular / WhatsApp (opcional)
               </label>
               <div className={inputWrapper}>
                 <Phone className={iconClass} />
@@ -148,7 +148,7 @@ export function AuthForm({ mode }: { mode: "login" | "register" }) {
         )}
 
         <div>
-          <label className="text-xs font-black uppercase tracking-wider text-muted-foreground mb-1.5 block" htmlFor="email">
+          <label className="text-xs font-black uppercase tracking-wider text-zinc-300 mb-1.5 block" htmlFor="email">
             Correo Electrónico
           </label>
           <div className={inputWrapper}>
@@ -158,14 +158,14 @@ export function AuthForm({ mode }: { mode: "login" | "register" }) {
               name="email"
               type="email"
               required
-              placeholder="ejemplo@correo.com"
+              placeholder="ejemplo@gmail.com"
               className={inputClass}
             />
           </div>
         </div>
 
         <div>
-          <label className="text-xs font-black uppercase tracking-wider text-muted-foreground mb-1.5 block" htmlFor="password">
+          <label className="text-xs font-black uppercase tracking-wider text-zinc-300 mb-1.5 block" htmlFor="password">
             Contraseña
           </label>
           <div className={inputWrapper}>
@@ -182,7 +182,7 @@ export function AuthForm({ mode }: { mode: "login" | "register" }) {
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
-              className="mr-3 p-1 text-muted-foreground hover:text-foreground"
+              className="mr-3 p-1 text-zinc-500 hover:text-white"
               aria-label={showPassword ? "Ocultar contraseña" : "Ver contraseña"}
             >
               {showPassword ? (
@@ -197,7 +197,7 @@ export function AuthForm({ mode }: { mode: "login" | "register" }) {
         {error && (
           <div
             role="alert"
-            className="flex items-center gap-2 rounded-2xl border border-destructive/40 bg-destructive/10 p-3.5 text-xs font-semibold text-destructive animate-fade-in-up"
+            className="flex items-center gap-2 rounded-2xl border border-red-500/30 bg-red-950/20 p-3.5 text-xs font-semibold text-red-400 animate-fade-in-up"
           >
             <AlertCircle className="h-4 w-4 shrink-0" />
             <span>{error}</span>
@@ -207,22 +207,22 @@ export function AuthForm({ mode }: { mode: "login" | "register" }) {
         <button
           type="submit"
           disabled={loading}
-          className="btn-world mt-2 flex h-13 w-full items-center justify-center gap-2 rounded-full text-xs font-black uppercase tracking-wider shadow-lg transition-transform active:scale-95 disabled:opacity-60"
+          className="btn-red mt-2 flex h-12 w-full items-center justify-center gap-2 rounded-full text-xs font-black uppercase tracking-wider shadow-lg transition-transform active:scale-95 disabled:opacity-60"
         >
           {loading ? (
             <>
-              <Loader2 className="h-4 w-4 animate-spin text-black" />
+              <Loader2 className="h-4 w-4 animate-spin text-white" />
               <span>Procesando...</span>
             </>
           ) : mode === "login" ? (
             <>
               <span>Ingresar a mi cuenta</span>
-              <ArrowRight className="h-4 w-4 text-black" />
+              <ArrowRight className="h-4 w-4 text-white" />
             </>
           ) : (
             <>
-              <span>Crear Cuenta y Agendar</span>
-              <ArrowRight className="h-4 w-4 text-black" />
+              <span>Crear Cuenta</span>
+              <ArrowRight className="h-4 w-4 text-white" />
             </>
           )}
         </button>

@@ -10,7 +10,7 @@ import {
   Star,
   Clock,
   ArrowLeft,
-  Share2,
+  Users,
 } from "lucide-react";
 import { BookingFlow } from "@/components/BookingFlow";
 import { BarbershopShareQr } from "@/components/BarbershopShareQr";
@@ -46,14 +46,14 @@ export default async function PublicBarbershopPage({
   });
 
   return (
-    <div className="min-h-dvh bg-background text-foreground pb-20">
+    <div className="min-h-dvh bg-black text-white pb-24">
       {/* Top Header */}
-      <header className="glass sticky top-0 z-40 border-b border-border">
+      <header className="sticky top-0 z-40 border-b border-white/10 bg-black/85 backdrop-blur-xl">
         <div className="mx-auto flex h-16 max-w-lg items-center justify-between px-4">
           <Link
             href="/"
             aria-label="Volver"
-            className="flex h-10 w-10 items-center justify-center rounded-full border border-border bg-card text-foreground hover:bg-secondary"
+            className="flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-zinc-900 text-white hover:bg-zinc-800"
           >
             <ArrowLeft className="h-4 w-4" />
           </Link>
@@ -66,44 +66,60 @@ export default async function PublicBarbershopPage({
       </header>
 
       {/* Barbershop Hero Card */}
-      <div className="mx-auto max-w-lg px-4 pt-5">
-        <div className="world-card p-6 relative overflow-hidden mb-6">
-          <div className="flex items-start justify-between gap-3">
-            <div>
-              <span className="text-[10px] font-black uppercase tracking-widest text-[#00e575]">
+      <div className="mx-auto max-w-lg px-4 pt-4">
+        <div className="app-card overflow-hidden mb-6 border border-white/15 shadow-xl">
+          {/* Cover Photo */}
+          <div className="relative h-44 w-full overflow-hidden bg-zinc-800">
+            <img
+              src={shop.coverUrl || "https://images.unsplash.com/photo-1585747860715-2ba37e788b70?w=800&auto=format&fit=crop&q=60"}
+              alt={shop.name}
+              className="h-full w-full object-cover"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent" />
+            
+            <div className="absolute top-3 right-3 flex items-center gap-1 rounded-full bg-black/80 px-2.5 py-1 text-xs font-black text-amber-400 backdrop-blur-md">
+              <Star className="h-3.5 w-3.5 fill-amber-400" />
+              <span>{shop.rating}</span>
+            </div>
+
+            <div className="absolute bottom-3 left-4 right-4">
+              <span className="text-[10px] font-black uppercase tracking-widest text-red-500">
                 Sede Oficial
               </span>
-              <h1 className="text-2xl font-black text-foreground mt-0.5">
+              <h1 className="text-2xl font-black text-white">
                 {shop.name}
               </h1>
-              <p className="mt-1 flex items-center gap-1 text-xs text-muted-foreground">
-                <MapPin className="h-3.5 w-3.5 text-[#00e575] shrink-0" />
+              <p className="flex items-center gap-1 text-xs text-zinc-300 mt-0.5">
+                <MapPin className="h-3.5 w-3.5 text-red-500 shrink-0" />
                 <span>{shop.address}, {shop.city}</span>
               </p>
             </div>
+          </div>
 
-            <div className="flex flex-col items-end">
-              <span className="flex items-center gap-1 rounded-full bg-amber-500/10 px-2.5 py-1 text-xs font-bold text-amber-500">
-                <Star className="h-3.5 w-3.5 fill-amber-500" />
-                <span>{shop.rating}</span>
-              </span>
+          <div className="p-4 flex flex-col gap-3">
+            {shop.description && (
+              <p className="text-xs text-zinc-400 leading-relaxed">
+                {shop.description}
+              </p>
+            )}
+
+            <div className="flex items-center justify-between border-t border-white/10 pt-3 text-xs text-zinc-400">
+              <div className="flex items-center gap-1.5">
+                <Users className="h-4 w-4 text-blue-400" />
+                <span>{shop.barbers.length} {shop.barbers.length === 1 ? "barbero disponible" : "barberos disponibles"}</span>
+              </div>
+
               {shop.phone && (
                 <a
                   href={`tel:${shop.phone}`}
-                  className="mt-2 flex items-center gap-1 text-[11px] font-bold text-muted-foreground hover:text-[#00e575]"
+                  className="flex items-center gap-1 font-bold text-white hover:text-red-400"
                 >
-                  <Phone className="h-3 w-3 text-[#00e575]" />
+                  <Phone className="h-3.5 w-3.5 text-red-500" />
                   <span>{shop.phone}</span>
                 </a>
               )}
             </div>
           </div>
-
-          {shop.description && (
-            <p className="mt-3 text-xs text-muted-foreground leading-relaxed border-t border-border/50 pt-3">
-              {shop.description}
-            </p>
-          )}
         </div>
 
         {/* Embedded Scoped Booking Flow */}

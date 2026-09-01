@@ -43,6 +43,7 @@ export interface ServiceOption {
   durationMinutes: number;
   price: number;
   category?: string;
+  imageUrl?: string;
   barbershopId?: string | null;
 }
 
@@ -61,10 +62,10 @@ interface Slot {
 }
 
 const STEPS = [
-  { title: "Servicios", subtitle: "Elige tus servicios" },
-  { title: "Barbero", subtitle: "Selecciona tu profesional" },
+  { title: "Servicios", subtitle: "Elige tus servicios y cortes" },
+  { title: "Barbero", subtitle: "Selecciona a tu profesional" },
   { title: "Horario", subtitle: "Elige fecha y hora" },
-  { title: "Confirmar", subtitle: "Revisa los detalles" },
+  { title: "Confirmar", subtitle: "Revisa los datos de tu reserva" },
 ];
 
 const DAY_NAMES = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"];
@@ -271,48 +272,48 @@ export function BookingFlow({
           <button
             aria-label="Volver"
             onClick={() =>
-              step === 0 ? router.push("/inicio") : setStep(step - 1)
+              step === 0 ? router.push("/") : setStep(step - 1)
             }
-            className="flex h-11 w-11 items-center justify-center rounded-full border border-border bg-card text-foreground transition-all hover:bg-secondary active:scale-95"
+            className="flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-zinc-900 text-white transition-all hover:bg-zinc-800 active:scale-95"
           >
-            <ArrowLeft className="h-5 w-5" />
+            <ArrowLeft className="h-4 w-4" />
           </button>
 
           <div className="text-center">
-            <span className="text-[10px] font-black uppercase tracking-widest text-[#00e575]">
-              {currentShop?.name || "La Barbería"}
+            <span className="text-[10px] font-black uppercase tracking-widest text-red-500">
+              {currentShop?.name || "BarberApp"}
             </span>
-            <h1 className="text-base font-extrabold text-foreground">
+            <h1 className="text-base font-black text-white">
               {STEPS[step].title} ({step + 1}/4)
             </h1>
           </div>
 
-          <div className="h-11 w-11 opacity-0" />
+          <div className="h-10 w-10 opacity-0" />
         </div>
 
-        {/* Worldcoin Progress bar */}
+        {/* Progress Bar */}
         <div className="flex items-center gap-1.5">
           {STEPS.map((s, idx) => (
             <div
               key={idx}
               className={`h-1.5 flex-1 rounded-full transition-all duration-300 ${
-                idx <= step ? "bg-[#00e575]" : "bg-secondary"
+                idx <= step ? "bg-red-500" : "bg-zinc-800"
               }`}
             />
           ))}
         </div>
 
-        <p className="mt-3 text-center text-xs text-muted-foreground">
+        <p className="mt-2.5 text-center text-xs text-zinc-400">
           {STEPS[step].subtitle}
         </p>
       </div>
 
       {/* Sede Selector Banner if multiple shops exist */}
       {barbershops.length > 1 && (
-        <div className="mb-4 flex items-center justify-between rounded-2xl border border-border bg-card/60 p-3 text-xs">
+        <div className="mb-4 flex items-center justify-between rounded-2xl border border-white/10 bg-zinc-900/80 p-3 text-xs">
           <div className="flex items-center gap-2">
-            <Store className="h-4 w-4 text-[#00e575]" />
-            <span className="font-bold text-foreground truncate max-w-[200px]">
+            <Store className="h-4 w-4 text-red-500" />
+            <span className="font-bold text-white truncate max-w-[180px]">
               {currentShop?.name}
             </span>
           </div>
@@ -323,7 +324,7 @@ export function BookingFlow({
               setCurrentShopId(newShopId);
               router.push(`/agendar?barbershopId=${newShopId}`);
             }}
-            className="rounded-xl border border-border bg-card px-2.5 py-1 text-xs font-bold text-foreground focus:outline-none focus:ring-1 focus:ring-[#00e575]"
+            className="rounded-xl border border-white/10 bg-zinc-900 px-2.5 py-1 text-xs font-bold text-white focus:outline-none focus:ring-1 focus:ring-red-500"
           >
             {barbershops.map((s) => (
               <option key={s.id} value={s.id}>
@@ -345,8 +346,8 @@ export function BookingFlow({
                   onClick={() => setSelectedCategory(cat)}
                   className={`rounded-full px-4 py-1.5 text-xs font-black uppercase tracking-wider transition-colors ${
                     selectedCategory === cat
-                      ? "bg-[#00e575] text-black font-extrabold shadow-md shadow-[#00e575]/20"
-                      : "border border-border bg-card text-muted-foreground hover:text-foreground"
+                      ? "bg-red-500 text-white shadow-md shadow-red-500/20"
+                      : "border border-white/10 bg-zinc-900 text-zinc-400 hover:text-white"
                   }`}
                 >
                   {cat}
@@ -363,41 +364,58 @@ export function BookingFlow({
                   key={service.id}
                   onClick={() => toggleService(service.id)}
                   aria-pressed={active}
-                  className={`group relative flex items-start justify-between rounded-3xl border p-4 text-left transition-all duration-200 ${
+                  className={`group relative flex items-center justify-between rounded-3xl border p-4 text-left transition-all duration-200 ${
                     active
-                      ? "border-[#00e575] bg-[#00e575]/10 shadow-lg shadow-[#00e575]/5 ring-1 ring-[#00e575]"
-                      : "border-border bg-card hover:border-zinc-500"
+                      ? "border-red-500 bg-red-950/20 shadow-lg shadow-red-500/10 ring-1 ring-red-500"
+                      : "border-white/10 bg-zinc-900/90 hover:border-zinc-700"
                   }`}
                 >
-                  <div className="pr-3 flex-1">
-                    <div className="flex items-center gap-2">
-                      <h3 className="text-sm font-bold text-foreground">
-                        {service.name}
-                      </h3>
-                      {active && (
-                        <span className="flex h-4 w-4 items-center justify-center rounded-full bg-[#00e575] text-[10px] text-black font-black">
-                          ✓
-                        </span>
+                  <div className="flex items-center gap-3.5 pr-2 flex-1">
+                    {/* Service Cut Image Thumbnail */}
+                    <div className="h-14 w-14 shrink-0 overflow-hidden rounded-2xl bg-zinc-800 border border-white/10">
+                      {service.imageUrl ? (
+                        <img
+                          src={service.imageUrl}
+                          alt={service.name}
+                          className="h-full w-full object-cover"
+                        />
+                      ) : (
+                        <div className="flex h-full w-full items-center justify-center text-zinc-500">
+                          <Scissors className="h-6 w-6" />
+                        </div>
                       )}
                     </div>
-                    <p className="mt-1 text-xs text-muted-foreground leading-relaxed">
-                      {service.description || "Servicio profesional con acabado impecable."}
-                    </p>
-                    <div className="mt-2 flex items-center gap-2 text-[11px] text-muted-foreground font-medium">
-                      <Clock className="h-3.5 w-3.5 text-[#00e575]" />
-                      <span>{formatDuration(service.durationMinutes)}</span>
+
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-2">
+                        <h3 className="text-sm font-bold text-white truncate">
+                          {service.name}
+                        </h3>
+                        {active && (
+                          <span className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-red-500 text-[10px] text-white font-black">
+                            ✓
+                          </span>
+                        )}
+                      </div>
+                      <p className="mt-0.5 text-xs text-zinc-400 line-clamp-1">
+                        {service.description || "Servicio profesional con acabado impecable."}
+                      </p>
+                      <div className="mt-1 flex items-center gap-2 text-[11px] text-zinc-400 font-medium">
+                        <Clock className="h-3 w-3 text-red-500" />
+                        <span>{formatDuration(service.durationMinutes)}</span>
+                      </div>
                     </div>
                   </div>
 
-                  <div className="flex flex-col items-end justify-between self-stretch shrink-0">
-                    <span className="font-mono text-sm font-black text-foreground">
+                  <div className="flex flex-col items-end justify-between self-stretch shrink-0 pl-2">
+                    <span className="font-mono text-sm font-black text-white">
                       {formatCOP(service.price)}
                     </span>
                     <div
                       className={`mt-auto flex h-6 w-6 items-center justify-center rounded-full border transition-all ${
                         active
-                          ? "border-[#00e575] bg-[#00e575] text-black font-black"
-                          : "border-border bg-secondary text-transparent"
+                          ? "border-red-500 bg-red-500 text-white font-black"
+                          : "border-white/20 bg-zinc-800 text-transparent"
                       }`}
                     >
                       <Check className="h-3.5 w-3.5" />
@@ -418,28 +436,28 @@ export function BookingFlow({
             aria-pressed={selectedBarber === "any"}
             className={`flex items-center gap-4 rounded-3xl border p-4 text-left transition-all duration-200 ${
               selectedBarber === "any"
-                ? "border-[#00e575] bg-[#00e575]/10 shadow-lg shadow-[#00e575]/5 ring-1 ring-[#00e575]"
-                : "border-border bg-card hover:border-zinc-500"
+                ? "border-blue-500 bg-blue-950/20 shadow-lg shadow-blue-500/10 ring-1 ring-blue-500"
+                : "border-white/10 bg-zinc-900 hover:border-zinc-700"
             }`}
           >
-            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-[#00e575]/15 text-[#00e575]">
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-blue-600/20 text-blue-400">
               <Sparkles className="h-6 w-6" />
             </div>
             <div className="flex-1">
               <div className="flex items-center gap-2">
-                <p className="text-sm font-bold text-foreground">
+                <p className="text-sm font-bold text-white">
                   Cualquier barbero disponible
                 </p>
-                <span className="rounded-full bg-[#00e575]/20 px-2 py-0.5 text-[10px] font-black text-[#00e575] uppercase">
+                <span className="rounded-full bg-blue-500/20 px-2 py-0.5 text-[10px] font-black text-blue-400 uppercase">
                   Recomendado
                 </span>
               </div>
-              <p className="text-xs text-muted-foreground mt-0.5">
+              <p className="text-xs text-zinc-400 mt-0.5">
                 Te asignamos automáticamente al barbero con mayor disponibilidad.
               </p>
             </div>
             {selectedBarber === "any" && (
-              <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#00e575] text-black font-bold text-xs">
+              <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-blue-500 text-white font-bold text-xs">
                 ✓
               </div>
             )}
@@ -454,26 +472,26 @@ export function BookingFlow({
                 aria-pressed={active}
                 className={`flex items-center gap-4 rounded-3xl border p-4 text-left transition-all duration-200 ${
                   active
-                    ? "border-[#00e575] bg-[#00e575]/10 shadow-lg shadow-[#00e575]/5 ring-1 ring-[#00e575]"
-                    : "border-border bg-card hover:border-zinc-500"
+                    ? "border-red-500 bg-red-950/20 shadow-lg shadow-red-500/10 ring-1 ring-red-500"
+                    : "border-white/10 bg-zinc-900 hover:border-zinc-700"
                 }`}
               >
-                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-zinc-800 to-zinc-950 border border-white/10 font-black text-white text-base">
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-zinc-800 border border-white/10 font-black text-white text-base">
                   {barber.displayName[0]}
                 </div>
                 <div className="flex-1">
-                  <p className="text-sm font-bold text-foreground">
+                  <p className="text-sm font-bold text-white">
                     {barber.displayName}
                   </p>
-                  <p className="text-xs text-muted-foreground capitalize">
+                  <p className="text-xs text-zinc-400 capitalize">
                     {barber.specialties.split(",").join(" · ")}
                   </p>
-                  <span className="mt-1 inline-block text-[11px] font-bold text-[#00e575]">
+                  <span className="mt-1 inline-block text-[11px] font-bold text-blue-400">
                     {barber.bio || "Master Barbero"}
                   </span>
                 </div>
                 {active && (
-                  <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#00e575] text-black font-bold text-xs">
+                  <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-red-500 text-white font-bold text-xs">
                     ✓
                   </div>
                 )}
@@ -487,7 +505,7 @@ export function BookingFlow({
       {step === 2 && (
         <div className="flex flex-col gap-6">
           <div>
-            <label className="text-xs font-black uppercase tracking-wider text-[#00e575] mb-2.5 block">
+            <label className="text-xs font-black uppercase tracking-wider text-red-500 mb-2.5 block">
               1. Selecciona el Día
             </label>
             <div className="no-scrollbar flex gap-2.5 overflow-x-auto pb-2">
@@ -500,17 +518,17 @@ export function BookingFlow({
                     onClick={() => setDate(d)}
                     className={`flex min-w-[66px] flex-col items-center gap-1 rounded-2xl border p-3 transition-all duration-200 ${
                       active
-                        ? "border-[#00e575] bg-[#00e575] text-black shadow-lg shadow-[#00e575]/25 font-black"
-                        : "border-border bg-card text-foreground hover:border-zinc-500"
+                        ? "border-red-500 bg-red-600 text-white shadow-lg shadow-red-600/30 font-black"
+                        : "border-white/10 bg-zinc-900 text-white hover:border-zinc-700"
                     }`}
                   >
-                    <span className={`text-[11px] font-bold uppercase ${active ? "text-black/80" : "text-muted-foreground"}`}>
+                    <span className={`text-[11px] font-bold uppercase ${active ? "text-white" : "text-zinc-400"}`}>
                       {DAY_NAMES[info.dow]}
                     </span>
                     <span className="font-mono text-xl font-black">
                       {info.dayNum}
                     </span>
-                    <span className={`text-[10px] font-bold ${active ? "text-black/70" : "text-muted-foreground"}`}>
+                    <span className={`text-[10px] font-bold ${active ? "text-white/80" : "text-zinc-400"}`}>
                       {info.month}
                     </span>
                   </button>
@@ -520,26 +538,26 @@ export function BookingFlow({
           </div>
 
           <div>
-            <label className="text-xs font-black uppercase tracking-wider text-[#00e575] mb-2.5 block">
+            <label className="text-xs font-black uppercase tracking-wider text-blue-400 mb-2.5 block">
               2. Selecciona la Hora
             </label>
 
             {slotsLoading && (
               <div className="flex flex-col items-center justify-center gap-3 py-12 text-center">
-                <Loader2 className="h-8 w-8 animate-spin text-[#00e575]" />
-                <p className="text-xs text-muted-foreground">
+                <Loader2 className="h-8 w-8 animate-spin text-red-500" />
+                <p className="text-xs text-zinc-400">
                   Buscando horarios libres en {currentShop?.name}...
                 </p>
               </div>
             )}
 
             {!slotsLoading && slots && slots.length === 0 && (
-              <div className="rounded-3xl border border-dashed border-border bg-card/50 p-8 text-center">
-                <CalendarIcon className="mx-auto h-8 w-8 text-muted-foreground/50 mb-2" />
-                <p className="text-sm font-bold text-foreground">
+              <div className="rounded-3xl border border-dashed border-white/15 bg-zinc-900/50 p-8 text-center">
+                <CalendarIcon className="mx-auto h-8 w-8 text-zinc-600 mb-2" />
+                <p className="text-sm font-bold text-white">
                   No hay horarios libres para esta fecha
                 </p>
-                <p className="mt-1 text-xs text-muted-foreground">
+                <p className="mt-1 text-xs text-zinc-400">
                   Por favor selecciona otro día en el selector de arriba.
                 </p>
               </div>
@@ -549,8 +567,8 @@ export function BookingFlow({
               <div className="flex flex-col gap-5">
                 {morningSlots.length > 0 && (
                   <div>
-                    <div className="flex items-center gap-1.5 text-xs font-bold text-muted-foreground mb-2.5">
-                      <Sun className="h-4 w-4 text-[#00e575]" />
+                    <div className="flex items-center gap-1.5 text-xs font-bold text-zinc-400 mb-2.5">
+                      <Sun className="h-4 w-4 text-amber-400" />
                       <span>Mañana (9:00 AM - 12:00 PM)</span>
                     </div>
                     <div className="grid grid-cols-3 gap-2.5 sm:grid-cols-4">
@@ -562,15 +580,15 @@ export function BookingFlow({
                             onClick={() => setSelectedSlot(slot)}
                             className={`flex flex-col items-center justify-center rounded-2xl border py-3 px-2 transition-all duration-200 ${
                               active
-                                ? "border-[#00e575] bg-[#00e575] text-black font-black shadow-md shadow-[#00e575]/25"
-                                : "border-border bg-card text-foreground hover:border-zinc-500"
+                                ? "border-red-500 bg-red-600 text-white font-black shadow-md shadow-red-500/30"
+                                : "border-white/10 bg-zinc-900 text-white hover:border-zinc-700"
                             }`}
                           >
                             <span className="font-mono text-sm font-black">
                               {formatTime12Str(slot.time)}
                             </span>
                             {selectedBarber === "any" && (
-                              <span className={`text-[10px] truncate max-w-full ${active ? "text-black/80 font-bold" : "text-muted-foreground"}`}>
+                              <span className={`text-[10px] truncate max-w-full ${active ? "text-white font-bold" : "text-zinc-400"}`}>
                                 {slot.barberName}
                               </span>
                             )}
@@ -583,9 +601,9 @@ export function BookingFlow({
 
                 {afternoonSlots.length > 0 && (
                   <div>
-                    <div className="flex items-center gap-1.5 text-xs font-bold text-muted-foreground mb-2.5">
-                      <Sunset className="h-4 w-4 text-[#00e575]" />
-                      <span>Tarde / Noche (12:00 PM - 7:00 PM)</span>
+                    <div className="flex items-center gap-1.5 text-xs font-bold text-zinc-400 mb-2.5">
+                      <Sunset className="h-4 w-4 text-blue-400" />
+                      <span>Tarde / Noche (12:00 PM - 8:00 PM)</span>
                     </div>
                     <div className="grid grid-cols-3 gap-2.5 sm:grid-cols-4">
                       {afternoonSlots.map((slot) => {
@@ -596,15 +614,15 @@ export function BookingFlow({
                             onClick={() => setSelectedSlot(slot)}
                             className={`flex flex-col items-center justify-center rounded-2xl border py-3 px-2 transition-all duration-200 ${
                               active
-                                ? "border-[#00e575] bg-[#00e575] text-black font-black shadow-md shadow-[#00e575]/25"
-                                : "border-border bg-card text-foreground hover:border-zinc-500"
+                                ? "border-blue-500 bg-blue-600 text-white font-black shadow-md shadow-blue-500/30"
+                                : "border-white/10 bg-zinc-900 text-white hover:border-zinc-700"
                             }`}
                           >
                             <span className="font-mono text-sm font-black">
                               {formatTime12Str(slot.time)}
                             </span>
                             {selectedBarber === "any" && (
-                              <span className={`text-[10px] truncate max-w-full ${active ? "text-black/80 font-bold" : "text-muted-foreground"}`}>
+                              <span className={`text-[10px] truncate max-w-full ${active ? "text-white font-bold" : "text-zinc-400"}`}>
                                 {slot.barberName}
                               </span>
                             )}
@@ -623,121 +641,121 @@ export function BookingFlow({
       {/* Step 4: Confirmation Summary & Guest Fields */}
       {step === 3 && selectedSlot && (
         <div className="flex flex-col gap-4">
-          <div className="world-card p-6 shadow-xl border border-[#00e575]/30">
-            <div className="flex items-center justify-between border-b border-border/60 pb-3">
-              <span className="text-xs font-black uppercase tracking-wider text-[#00e575]">
-                {currentShop?.name || "La Barbería"}
+          <div className="app-card p-6 border border-white/15 shadow-xl">
+            <div className="flex items-center justify-between border-b border-white/10 pb-3">
+              <span className="text-xs font-black uppercase tracking-wider text-red-500">
+                {currentShop?.name || "BarberApp"}
               </span>
-              <span className="text-[11px] text-muted-foreground">{currentShop?.city || "Cartagena"}</span>
+              <span className="text-[11px] text-zinc-400">{currentShop?.city || "Cartagena"}</span>
             </div>
 
             <dl className="mt-4 flex flex-col gap-3 text-sm">
               <div className="flex justify-between items-start">
-                <dt className="text-muted-foreground">Servicio(s):</dt>
-                <dd className="text-right font-black text-foreground max-w-[60%]">
+                <dt className="text-zinc-400">Servicio(s):</dt>
+                <dd className="text-right font-black text-white max-w-[60%]">
                   {summaryLabel}
                 </dd>
               </div>
 
               <div className="flex justify-between items-center">
-                <dt className="text-muted-foreground">Barbero:</dt>
-                <dd className="font-black text-foreground">
+                <dt className="text-zinc-400">Barbero:</dt>
+                <dd className="font-black text-white">
                   {selectedSlot.barberName}
                 </dd>
               </div>
 
               <div className="flex justify-between items-center">
-                <dt className="text-muted-foreground">Fecha:</dt>
-                <dd className="font-bold text-foreground">
+                <dt className="text-zinc-400">Fecha:</dt>
+                <dd className="font-bold text-white">
                   {formatDateLong(date)}
                 </dd>
               </div>
 
               <div className="flex justify-between items-center">
-                <dt className="text-muted-foreground">Hora:</dt>
-                <dd className="font-mono font-black text-[#00e575] text-base">
+                <dt className="text-zinc-400">Hora:</dt>
+                <dd className="font-mono font-black text-blue-400 text-base">
                   {formatTime12Str(selectedSlot.time)}
                 </dd>
               </div>
 
               <div className="flex justify-between items-center">
-                <dt className="text-muted-foreground">Duración:</dt>
-                <dd className="font-medium text-muted-foreground">
+                <dt className="text-zinc-400">Duración:</dt>
+                <dd className="font-medium text-zinc-400">
                   {formatDuration(totalDuration)}
                 </dd>
               </div>
 
-              <div className="mt-2 flex justify-between items-center border-t border-border pt-3">
-                <dt className="font-black text-foreground text-base">Total a pagar:</dt>
-                <dd className="font-mono text-2xl font-black text-foreground">
+              <div className="mt-2 flex justify-between items-center border-t border-white/10 pt-3">
+                <dt className="font-black text-white text-base">Total a pagar:</dt>
+                <dd className="font-mono text-2xl font-black text-white">
                   {formatCOP(totalPrice)}
                 </dd>
               </div>
             </dl>
 
-            <div className="mt-4 rounded-2xl bg-secondary/60 p-3.5 text-xs text-muted-foreground flex items-center gap-2">
-              <CheckCircle2 className="h-4 w-4 text-[#00e575] shrink-0" />
-              <span>Pago en sede al finalizar tu servicio (efectivo o transferencia).</span>
+            <div className="mt-4 rounded-2xl bg-zinc-900/90 p-3.5 text-xs text-zinc-300 flex items-center gap-2 border border-white/5">
+              <CheckCircle2 className="h-4 w-4 text-blue-400 shrink-0" />
+              <span>Pago en la sede al finalizar tu servicio (efectivo o transferencia).</span>
             </div>
           </div>
 
           {/* Guest Checkout Fields (si no ha iniciado sesión) */}
           {!currentUser && (
-            <div className="world-card p-5 border border-[#00e575]/30 animate-fade-in-up">
+            <div className="app-card p-5 border border-blue-500/30 animate-fade-in-up">
               <div className="flex items-center gap-2 mb-3">
-                <Sparkles className="h-4 w-4 text-[#00e575]" />
-                <h3 className="text-xs font-black uppercase tracking-wider text-foreground">
+                <Sparkles className="h-4 w-4 text-blue-400" />
+                <h3 className="text-xs font-black uppercase tracking-wider text-white">
                   Datos para tu Pase Digital QR
                 </h3>
               </div>
 
               <div className="flex flex-col gap-3">
                 <div>
-                  <label className="text-[11px] font-bold text-muted-foreground mb-1 block">
+                  <label className="text-[11px] font-bold text-zinc-400 mb-1 block">
                     Tu Nombre y Apellido *
                   </label>
-                  <div className="relative flex items-center rounded-xl border border-input bg-card">
-                    <User className="h-4 w-4 text-muted-foreground ml-3" />
+                  <div className="relative flex items-center rounded-xl border border-white/10 bg-zinc-900">
+                    <User className="h-4 w-4 text-zinc-500 ml-3" />
                     <input
                       required
                       value={guestName}
                       onChange={(e) => setGuestName(e.target.value)}
                       placeholder="Ej: Carlos Gómez"
-                      className="h-11 w-full bg-transparent px-3 text-sm text-foreground placeholder:text-muted-foreground/60 focus:outline-none"
+                      className="h-11 w-full bg-transparent px-3 text-sm text-white placeholder:text-zinc-600 focus:outline-none"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className="text-[11px] font-bold text-muted-foreground mb-1 block">
+                  <label className="text-[11px] font-bold text-zinc-400 mb-1 block">
                     WhatsApp / Celular *
                   </label>
-                  <div className="relative flex items-center rounded-xl border border-input bg-card">
-                    <Phone className="h-4 w-4 text-muted-foreground ml-3" />
+                  <div className="relative flex items-center rounded-xl border border-white/10 bg-zinc-900">
+                    <Phone className="h-4 w-4 text-zinc-500 ml-3" />
                     <input
                       required
                       inputMode="numeric"
                       value={guestPhone}
                       onChange={(e) => setGuestPhone(e.target.value)}
                       placeholder="3001234567"
-                      className="h-11 w-full bg-transparent px-3 text-sm text-foreground placeholder:text-muted-foreground/60 focus:outline-none"
+                      className="h-11 w-full bg-transparent px-3 text-sm text-white placeholder:text-zinc-600 focus:outline-none"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className="text-[11px] font-bold text-muted-foreground mb-1 block">
+                  <label className="text-[11px] font-bold text-zinc-400 mb-1 block">
                     Correo Electrónico *
                   </label>
-                  <div className="relative flex items-center rounded-xl border border-input bg-card">
-                    <Mail className="h-4 w-4 text-muted-foreground ml-3" />
+                  <div className="relative flex items-center rounded-xl border border-white/10 bg-zinc-900">
+                    <Mail className="h-4 w-4 text-zinc-500 ml-3" />
                     <input
                       required
                       type="email"
                       value={guestEmail}
                       onChange={(e) => setGuestEmail(e.target.value)}
-                      placeholder="carlos@correo.com"
-                      className="h-11 w-full bg-transparent px-3 text-sm text-foreground placeholder:text-muted-foreground/60 focus:outline-none"
+                      placeholder="carlos@gmail.com"
+                      className="h-11 w-full bg-transparent px-3 text-sm text-white placeholder:text-zinc-600 focus:outline-none"
                     />
                   </div>
                 </div>
@@ -748,7 +766,7 @@ export function BookingFlow({
           <div>
             <label
               htmlFor="notes"
-              className="text-xs font-black uppercase tracking-wider text-muted-foreground mb-2 block"
+              className="text-xs font-black uppercase tracking-wider text-zinc-400 mb-2 block"
             >
               Notas o preferencias (opcional)
             </label>
@@ -758,8 +776,8 @@ export function BookingFlow({
               rows={2}
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
-              placeholder="Ej: Fade medio, perfilado a navaja..."
-              className="w-full rounded-2xl border border-input bg-card p-3.5 text-sm text-foreground placeholder:text-muted-foreground/60 transition-colors focus:border-[#00e575] focus:outline-none"
+              placeholder="Ej: Fade medio comprimido, perfilado suave de cejas..."
+              className="w-full rounded-2xl border border-white/10 bg-zinc-900 p-3.5 text-sm text-white placeholder:text-zinc-600 transition-colors focus:border-red-500 focus:outline-none"
             />
           </div>
         </div>
@@ -769,7 +787,7 @@ export function BookingFlow({
       {error && (
         <div
           role="alert"
-          className="mt-4 flex items-center gap-2.5 rounded-2xl border border-destructive/40 bg-destructive/10 p-4 text-xs font-medium text-destructive"
+          className="mt-4 flex items-center gap-2.5 rounded-2xl border border-red-500/30 bg-red-950/20 p-4 text-xs font-medium text-red-400"
         >
           <AlertCircle className="h-4 w-4 shrink-0" />
           <span>{error}</span>
@@ -777,15 +795,15 @@ export function BookingFlow({
       )}
 
       {/* Sticky Bottom Bar */}
-      <div className="glass fixed inset-x-0 bottom-0 z-40 border-t">
-        <div className="mx-auto flex max-w-lg items-center justify-between gap-4 px-4 py-3 pb-[max(12px,env(safe-area-inset-bottom))]">
+      <div className="fixed inset-x-0 bottom-0 z-40 border-t border-white/10 bg-black/90 pb-[max(12px,env(safe-area-inset-bottom))] pt-3 backdrop-blur-xl">
+        <div className="mx-auto flex max-w-lg items-center justify-between gap-4 px-4">
           <div className="min-w-0">
-            <p className="truncate text-xs font-semibold text-muted-foreground">
+            <p className="truncate text-xs font-semibold text-zinc-400">
               {chosen.length > 0
                 ? `${chosen.length} ${chosen.length === 1 ? "servicio" : "servicios"} · ${formatDuration(totalDuration)}`
-                : "Elige al menos 1 servicio"}
+                : "Elige al menos 1 corte"}
             </p>
-            <p className="font-mono text-xl font-black text-foreground">
+            <p className="font-mono text-xl font-black text-white">
               {formatCOP(totalPrice)}
             </p>
           </div>
@@ -793,7 +811,7 @@ export function BookingFlow({
           <button
             disabled={!canContinue || submitting}
             onClick={() => (step === 3 ? void confirmBooking() : setStep(step + 1))}
-            className="btn-world flex h-12 shrink-0 items-center justify-center gap-2 rounded-full px-7 text-xs font-black uppercase tracking-wider disabled:opacity-40 disabled:cursor-not-allowed"
+            className="btn-red flex h-12 shrink-0 items-center justify-center gap-2 rounded-full px-7 text-xs font-black uppercase tracking-wider disabled:opacity-40 disabled:cursor-not-allowed"
           >
             {submitting ? (
               <>

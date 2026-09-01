@@ -1,270 +1,302 @@
 import Link from "next/link";
-import { redirect } from "next/navigation";
-import { getSession } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
-import { formatCOP } from "@/lib/core/money";
-import { formatDuration } from "@/lib/core/dates";
+import { getSession } from "@/lib/session";
 import {
   Scissors,
+  Store,
+  UserCheck,
   Calendar,
-  Clock,
-  QrCode,
-  Star,
-  MapPin,
   Sparkles,
   ArrowRight,
-  ShieldCheck,
-  Phone,
-  UserCheck,
-  Store,
-  Globe,
+  MapPin,
+  Star,
+  Shield,
+  PlusCircle,
+  Clock,
+  Ticket,
 } from "lucide-react";
+import { BottomNav } from "@/components/BottomNav";
 import { ThemeToggle } from "@/components/ThemeToggle";
 
-export default async function LandingPage() {
+export default async function AppHomePage() {
   const session = await getSession();
-  if (session) {
-    redirect(session.role === "BARBERO" ? "/barbero" : "/inicio");
-  }
 
-  const [barbershops, services, barbers] = await Promise.all([
-    prisma.barbershop.findMany({
-      where: { status: "ACTIVA" },
-      orderBy: { rating: "desc" },
-    }),
-    prisma.service.findMany({
-      where: { isActive: true },
-      take: 6,
-      orderBy: { sortOrder: "asc" },
-    }),
-    prisma.barber.findMany({
-      where: { status: "ACTIVO" },
-      include: { barbershop: true },
-      orderBy: { sortOrder: "asc" },
-    }),
-  ]);
+  const barbershops = await prisma.barbershop.findMany({
+    where: { status: "ACTIVA" },
+    include: {
+      services: { where: { isActive: true }, take: 4 },
+      barbers: { where: { status: "ACTIVO" } },
+    },
+    orderBy: { createdAt: "desc" },
+  });
 
   return (
-    <div className="min-h-dvh bg-background text-foreground selection:bg-[#00e575] selection:text-black">
-      {/* Top Navbar */}
-      <header className="glass sticky top-0 z-50 transition-all border-b border-border">
-        <div className="mx-auto flex h-16 max-w-5xl items-center justify-between px-4 sm:px-6">
+    <div className="min-h-dvh bg-black text-white pb-28">
+      {/* App Top Bar */}
+      <header className="sticky top-0 z-40 border-b border-white/10 bg-black/85 backdrop-blur-xl">
+        <div className="mx-auto flex h-16 max-w-lg items-center justify-between px-4">
           <div className="flex items-center gap-3">
-            <div className="relative flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-white/15 bg-black shadow-lg shadow-[#00e575]/25">
-              <img src="/logo.jpg" alt="Barber Market Logo" className="h-full w-full object-cover" />
+            <div className="relative flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-white/15 bg-zinc-950 shadow-md">
+              <img
+                src="/logo.jpg"
+                alt="BarberApp"
+                className="h-full w-full object-cover"
+              />
             </div>
             <div>
-              <span className="text-base font-black tracking-tight text-foreground">
-                BarberApp
+              <span className="text-base font-black tracking-tight text-white flex items-center gap-1.5">
+                <span>BarberApp</span>
+                <span className="inline-block h-1.5 w-1.5 rounded-full bg-red-500" />
+                <span className="inline-block h-1.5 w-1.5 rounded-full bg-blue-500" />
               </span>
-              <span className="block text-[9px] font-black uppercase tracking-widest text-[#00e575]">
-                Marketplace & Reservas
+              <span className="block text-[9px] font-black uppercase tracking-widest text-zinc-400">
+                Marketplace de Barberías
               </span>
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
+            {session ? (
+              <Link
+                href={session.role === "BARBERO" ? "/barbero" : session.role === "ADMIN" ? "/admin" : "/citas"}
+                className="flex items-center gap-1.5 rounded-full bg-zinc-900 border border-white/10 px-3 py-1.5 text-xs font-bold text-white hover:bg-zinc-800"
+              >
+                <div className="h-2 w-2 rounded-full bg-blue-500 animate-pulse" />
+                <span>{session.name.split(" ")[0]}</span>
+              </Link>
+            ) : (
+              <Link
+                href="/ingreso"
+                className="flex h-9 items-center justify-center rounded-full bg-zinc-900 border border-white/10 px-4 text-xs font-extrabold text-white hover:bg-zinc-800"
+              >
+                Entrar
+              </Link>
+            )}
             <ThemeToggle />
-            <Link
-              href="/ingreso"
-              className="hidden text-xs font-bold uppercase tracking-wider text-muted-foreground hover:text-foreground sm:inline-block"
-            >
-              Entrar
-            </Link>
-            <Link
-              href="/registro"
-              className="btn-world flex h-10 items-center justify-center gap-1.5 rounded-full px-5 text-xs font-black uppercase tracking-wider"
-            >
-              <span>Agendar</span>
-              <ArrowRight className="h-3.5 w-3.5" />
-            </Link>
           </div>
         </div>
       </header>
 
-      {/* Hero Section */}
-      <section className="relative overflow-hidden px-4 pb-16 pt-12 sm:px-6 sm:pb-24 sm:pt-20">
-        {/* Glow */}
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute -top-24 left-1/2 -z-10 h-96 w-full max-w-3xl -translate-x-1/2 rounded-full bg-[#00e575]/15 blur-[120px]"
-        />
+      {/* Main App Container */}
+      <main className="mx-auto max-w-lg px-4 pt-4 flex flex-col gap-5">
+        {/* Quick Google Sign In for Guests */}
+        {!session && (
+          <a
+            href="/api/auth/google"
+            className="flex h-12 w-full items-center justify-center gap-3 rounded-2xl border border-white/15 bg-zinc-900/90 text-xs font-extrabold text-white shadow-lg transition-all hover:bg-zinc-800 active:scale-[0.98]"
+          >
+            <svg className="h-4 w-4" viewBox="0 0 24 24">
+              <path
+                fill="#EA4335"
+                d="M12 5c1.6 0 3 .6 4.1 1.7l3.1-3.1C17.3 1.8 14.8 1 12 1 7.5 1 3.7 3.6 1.9 7.3l3.7 2.9C6.5 7.3 9 5 12 5z"
+              />
+              <path
+                fill="#4285F4"
+                d="M23.5 12.3c0-.8-.1-1.6-.2-2.3H12v4.5h6.5c-.3 1.5-1.1 2.8-2.4 3.7l3.7 2.9c2.2-2 3.7-5 3.7-8.8z"
+              />
+              <path
+                fill="#FBBC05"
+                d="M5.6 14.8c-.2-.7-.4-1.5-.4-2.3s.2-1.6.4-2.3L1.9 7.3C.7 9.7 0 12.3 0 15s.7 5.3 1.9 7.7l3.7-2.9z"
+              />
+              <path
+                fill="#34A853"
+                d="M12 23c3.2 0 6-1.1 8-3l-3.7-2.9c-1.1.7-2.5 1.2-4.3 1.2-3 0-5.5-2.3-6.4-5.2L1.9 16c1.8 3.7 5.6 7 10.1 7z"
+              />
+            </svg>
+            <span>Acceder con Google en 1 Clic</span>
+          </a>
+        )}
 
-        <div className="mx-auto max-w-3xl text-center">
-          {/* Badge */}
-          <div className="inline-flex items-center gap-2 rounded-full border border-[#00e575]/30 bg-[#00e575]/10 px-4 py-1.5 text-xs font-black text-[#00e575] mb-6">
-            <Sparkles className="h-3.5 w-3.5" />
-            <span>BarberApp — Marketplace de Barberías con Pase QR</span>
-          </div>
-
-          <h1 className="text-4xl font-black tracking-tight sm:text-6xl sm:leading-[1.15]">
-            Reserva tu silla en las mejores barberías de la <span className="text-[#00e575]">ciudad</span>
-          </h1>
-
-          <p className="mx-auto mt-6 max-w-xl text-base text-muted-foreground sm:text-lg sm:leading-relaxed">
-            Explora sedes, elige a tu barbero experto y agenda tu turno en segundos. Sin filas ni esperas por WhatsApp, con pase digital QR instantáneo.
-          </p>
-
-          {/* Action Buttons */}
-          <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row sm:gap-4">
-            <Link
-              href="/registro"
-              className="btn-world flex h-13 w-full items-center justify-center gap-2 rounded-full px-8 text-sm font-black uppercase tracking-wider shadow-xl sm:w-auto"
-            >
-              <Calendar className="h-4 w-4 text-black" />
-              <span>Explorar y Agendar Cita</span>
-            </Link>
-            <Link
-              href="/crear-barberia"
-              className="flex h-13 w-full items-center justify-center gap-2 rounded-full border border-border bg-card px-8 text-sm font-bold text-foreground transition-colors hover:border-[#00e575] hover:bg-[#00e575]/5 sm:w-auto"
-            >
-              <Store className="h-4 w-4 text-[#00e575]" />
-              <span>Registrar mi Barbería</span>
-            </Link>
-          </div>
-
-          {/* Social Proof Stats */}
-          <div className="mt-12 grid grid-cols-3 gap-2 rounded-3xl border border-border bg-card/60 p-5 backdrop-blur-md sm:gap-4 sm:p-6">
-            <div>
-              <p className="text-2xl font-black text-[#00e575] sm:text-3xl">4.9 ★</p>
-              <p className="text-xs text-muted-foreground sm:text-sm">+1,200 Clientes</p>
-            </div>
-            <div className="border-x border-border">
-              <p className="text-2xl font-black text-[#00e575] sm:text-3xl">100%</p>
-              <p className="text-xs text-muted-foreground sm:text-sm">Sin Esperas</p>
-            </div>
-            <div>
-              <p className="text-2xl font-black text-[#00e575] sm:text-3xl">{barbershops.length}</p>
-              <p className="text-xs text-muted-foreground sm:text-sm">Sedes Activas</p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Barbershops Showcase (Marketplace) */}
-      <section className="border-y border-border bg-secondary/30 px-4 py-16 sm:px-6">
-        <div className="mx-auto max-w-5xl">
-          <div className="text-center mb-10">
-            <span className="text-xs font-black uppercase tracking-widest text-[#00e575]">
-              Sedes Disponibles
-            </span>
-            <h2 className="mt-2 text-2xl font-black tracking-tight sm:text-4xl">
-              Nuestras Barberías Asociadas
-            </h2>
-            <p className="mt-2 text-sm text-muted-foreground">
-              Ubicaciones estratégicas con los más altos estándares de calidad.
-            </p>
-          </div>
-
-          <div className="grid gap-6 sm:grid-cols-3">
-            {barbershops.map((shop) => (
-              <div
-                key={shop.id}
-                className="world-card p-6 flex flex-col justify-between"
-              >
-                <div>
-                  <div className="flex items-start justify-between gap-2">
-                    <h3 className="text-lg font-bold text-foreground">
-                      {shop.name}
-                    </h3>
-                    <span className="flex items-center gap-1 rounded-full bg-amber-500/10 px-2.5 py-0.5 text-xs font-bold text-amber-500">
-                      ★ {shop.rating}
-                    </span>
-                  </div>
-                  <p className="mt-2 text-xs text-muted-foreground line-clamp-2">
-                    {shop.description}
-                  </p>
-                  <p className="mt-3 flex items-center gap-1.5 text-xs text-muted-foreground">
-                    <MapPin className="h-3.5 w-3.5 text-[#00e575] shrink-0" />
-                    <span>{shop.address}, {shop.city}</span>
-                  </p>
-                </div>
-
-                <div className="mt-6 border-t border-border/60 pt-4 flex items-center justify-between">
-                  <span className="text-xs font-semibold text-muted-foreground">
-                    {shop.phone}
-                  </span>
-                  <Link
-                    href={`/registro`}
-                    className="flex h-9 items-center justify-center gap-1 rounded-full bg-secondary px-4 text-xs font-bold text-foreground hover:bg-[#00e575] hover:text-black transition-colors"
-                  >
-                    <span>Ver Silla</span>
-                    <ArrowRight className="h-3 w-3" />
-                  </Link>
-                </div>
+        {/* Dual Role Selector Cards */}
+        <div className="grid grid-cols-2 gap-3">
+          {/* Soy Cliente Card */}
+          <Link
+            href="/agendar"
+            className="group relative flex flex-col justify-between rounded-3xl border border-blue-500/30 bg-gradient-to-br from-blue-950/40 via-zinc-900 to-black p-4 text-left shadow-xl transition-all hover:border-blue-400 hover:shadow-blue-500/10 active:scale-[0.98]"
+          >
+            <div className="flex items-center justify-between">
+              <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-blue-600 text-white shadow-md shadow-blue-600/30">
+                <Scissors className="h-5 w-5" />
               </div>
-            ))}
-          </div>
-        </div>
-      </section>
+              <span className="rounded-full bg-blue-500/20 px-2 py-0.5 text-[9px] font-black uppercase tracking-wider text-blue-400">
+                Clientes
+              </span>
+            </div>
 
-      {/* Services Grid */}
-      <section className="px-4 py-16 sm:px-6 sm:py-20">
-        <div className="mx-auto max-w-5xl">
-          <div className="text-center mb-10">
-            <span className="text-xs font-black uppercase tracking-widest text-[#00e575]">
-              Servicios Destacados
-            </span>
-            <h2 className="mt-2 text-2xl font-black tracking-tight sm:text-4xl">
-              Cortes, Barba y Paquetes VIP
-            </h2>
-          </div>
+            <div className="mt-4">
+              <h2 className="text-sm font-black text-white group-hover:text-blue-400 transition-colors">
+                Soy Cliente
+              </h2>
+              <p className="mt-0.5 text-[11px] text-zinc-400 leading-tight">
+                Agendar corte express sin filas ni cuenta obligatoria.
+              </p>
+            </div>
 
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {services.map((service) => (
-              <div
-                key={service.id}
-                className="world-card p-5 flex flex-col justify-between"
-              >
-                <div>
-                  <div className="flex items-start justify-between gap-2">
-                    <h3 className="font-bold text-foreground text-base">
-                      {service.name}
-                    </h3>
-                    <span className="rounded-full bg-[#00e575]/15 px-2.5 py-0.5 text-xs font-bold text-[#00e575]">
-                      {formatDuration(service.durationMinutes)}
-                    </span>
-                  </div>
-                  <p className="mt-1.5 text-xs text-muted-foreground">
-                    {service.description || "Atención profesional con acabado de navaja y toalla caliente."}
-                  </p>
-                </div>
+            <div className="mt-3 flex items-center gap-1 text-[11px] font-black text-blue-400">
+              <span>Reservar cita</span>
+              <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1" />
+            </div>
+          </Link>
 
-                <div className="mt-6 flex items-center justify-between border-t border-border/60 pt-4">
-                  <div>
-                    <span className="text-[10px] text-muted-foreground uppercase font-bold">Precio</span>
-                    <p className="font-mono text-base font-black text-foreground">
-                      {formatCOP(service.price)}
-                    </p>
-                  </div>
-                  <Link
-                    href="/registro"
-                    className="flex h-9 items-center justify-center gap-1 rounded-full bg-secondary px-4 text-xs font-bold text-foreground hover:bg-[#00e575] hover:text-black transition-colors"
-                  >
-                    <span>Elegir</span>
-                    <ArrowRight className="h-3 w-3" />
-                  </Link>
-                </div>
+          {/* Soy Barbero Card */}
+          <Link
+            href="/barbero"
+            className="group relative flex flex-col justify-between rounded-3xl border border-red-500/30 bg-gradient-to-br from-red-950/40 via-zinc-900 to-black p-4 text-left shadow-xl transition-all hover:border-red-400 hover:shadow-red-500/10 active:scale-[0.98]"
+          >
+            <div className="flex items-center justify-between">
+              <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-red-600 text-white shadow-md shadow-red-600/30">
+                <UserCheck className="h-5 w-5" />
               </div>
-            ))}
-          </div>
-        </div>
-      </section>
+              <span className="rounded-full bg-red-500/20 px-2 py-0.5 text-[9px] font-black uppercase tracking-wider text-red-400">
+                Barberos
+              </span>
+            </div>
 
-      {/* Footer */}
-      <footer className="border-t border-border px-4 py-8 text-center text-xs text-muted-foreground sm:px-6">
-        <div className="mx-auto flex max-w-5xl flex-col items-center justify-between gap-4 sm:flex-row">
-          <p>© {new Date().getFullYear()} Barber Market. Todos los derechos reservados.</p>
-          <div className="flex items-center gap-4">
-            <Link href="/admin" className="text-[#00e575] hover:underline font-bold">
-              Panel Super Admin
-            </Link>
-            <Link href="/ingreso" className="text-muted-foreground hover:underline">
-              Ingreso Staff
+            <div className="mt-4">
+              <h2 className="text-sm font-black text-white group-hover:text-red-400 transition-colors">
+                Soy Barbero
+              </h2>
+              <p className="mt-0.5 text-[11px] text-zinc-400 leading-tight">
+                Panel de agenda, escaneo de pases QR y horarios.
+              </p>
+            </div>
+
+            <div className="mt-3 flex items-center gap-1 text-[11px] font-black text-red-400">
+              <span>Mi Panel</span>
+              <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1" />
+            </div>
+          </Link>
+        </div>
+
+        {/* Register Shop CTA Banner */}
+        <div className="rounded-3xl border border-white/10 bg-zinc-900/90 p-4 flex items-center justify-between gap-3 shadow-lg">
+          <div className="flex items-center gap-3">
+            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-zinc-800 text-white border border-white/10">
+              <Store className="h-5 w-5 text-red-500" />
+            </div>
+            <div>
+              <h3 className="text-xs font-black text-white">
+                ¿Tienes una Barbería?
+              </h3>
+              <p className="text-[11px] text-zinc-400">
+                Sube tus fotos, invita a tus barberos y recibe citas hoy.
+              </p>
+            </div>
+          </div>
+
+          <Link
+            href="/crear-barberia"
+            className="btn-red flex h-9 shrink-0 items-center justify-center rounded-full px-3.5 text-xs font-black uppercase tracking-wider"
+          >
+            <span>Crear Sede</span>
+          </Link>
+        </div>
+
+        {/* Explore Barbershops Section */}
+        <div>
+          <div className="flex items-center justify-between mb-3">
+            <div>
+              <h2 className="text-sm font-black text-white">
+                Barberías Disponibles
+              </h2>
+              <p className="text-[11px] text-zinc-400">
+                {barbershops.length} {barbershops.length === 1 ? "sede activa" : "sedes activas"}
+              </p>
+            </div>
+
+            <Link
+              href="/agendar"
+              className="text-[11px] font-black text-blue-400 hover:underline"
+            >
+              Ver mapa completo
             </Link>
           </div>
+
+          {barbershops.length === 0 ? (
+            <div className="rounded-3xl border border-dashed border-white/15 bg-zinc-900/40 p-8 text-center">
+              <Store className="mx-auto h-10 w-10 text-zinc-600 mb-2" />
+              <h3 className="text-sm font-bold text-white">
+                Aún no hay barberías creadas
+              </h3>
+              <p className="mt-1 text-xs text-zinc-400 max-w-xs mx-auto">
+                Sé el primero en registrar tu barbería, subir tus fotos y compartir tu código QR oficial.
+              </p>
+              <Link
+                href="/crear-barberia"
+                className="btn-red mx-auto mt-4 inline-flex h-10 items-center justify-center gap-2 rounded-full px-6 text-xs font-black uppercase tracking-wider"
+              >
+                <PlusCircle className="h-4 w-4" />
+                <span>Registrar Barbería Ahora</span>
+              </Link>
+            </div>
+          ) : (
+            <div className="flex flex-col gap-4">
+              {barbershops.map((shop) => (
+                <div
+                  key={shop.id}
+                  className="group overflow-hidden rounded-3xl border border-white/10 bg-zinc-900 transition-all hover:border-white/20"
+                >
+                  {/* Shop Cover Image */}
+                  <div className="relative h-36 w-full overflow-hidden bg-zinc-800">
+                    <img
+                      src={shop.coverUrl || "https://images.unsplash.com/photo-1585747860715-2ba37e788b70?w=800&auto=format&fit=crop&q=60"}
+                      alt={shop.name}
+                      className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/40 to-transparent" />
+                    
+                    <div className="absolute top-3 right-3 flex items-center gap-1 rounded-full bg-black/70 px-2.5 py-1 text-[11px] font-black text-amber-400 backdrop-blur-md">
+                      <Star className="h-3 w-3 fill-amber-400" />
+                      <span>{shop.rating}</span>
+                    </div>
+
+                    <div className="absolute bottom-3 left-3 right-3 flex items-end justify-between">
+                      <div>
+                        <h3 className="text-base font-black text-white drop-shadow">
+                          {shop.name}
+                        </h3>
+                        <p className="flex items-center gap-1 text-[11px] text-zinc-300">
+                          <MapPin className="h-3 w-3 text-red-500 shrink-0" />
+                          <span>{shop.address}, {shop.city}</span>
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Shop Quick Actions & Info */}
+                  <div className="p-4 flex items-center justify-between gap-2 border-t border-white/5">
+                    <div className="flex items-center gap-3 text-xs text-zinc-400">
+                      <span>{shop.barbers.length} {shop.barbers.length === 1 ? "barbero" : "barberos"}</span>
+                      <span>·</span>
+                      <span>{shop.services.length} servicios</span>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      <Link
+                        href={`/b/${shop.slug}`}
+                        className="flex h-9 items-center justify-center rounded-full border border-white/10 bg-zinc-800 px-3.5 text-xs font-bold text-white hover:bg-zinc-700"
+                      >
+                        Ver QR / Perfil
+                      </Link>
+
+                      <Link
+                        href={`/agendar?barbershopId=${shop.id}`}
+                        className="btn-red flex h-9 items-center justify-center gap-1.5 rounded-full px-4 text-xs font-black uppercase tracking-wider"
+                      >
+                        <span>Reservar</span>
+                        <ArrowRight className="h-3.5 w-3.5" />
+                      </Link>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
-      </footer>
+      </main>
+
+      {/* Persistent Bottom App Bar */}
+      <BottomNav role={session?.role} />
     </div>
   );
 }

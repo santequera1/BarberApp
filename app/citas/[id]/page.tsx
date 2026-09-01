@@ -83,54 +83,59 @@ export default async function TicketPage({
     { badgeBg: string; badgeText: string; icon: typeof CheckCircle2 }
   > = {
     CONFIRMADA: {
-      badgeBg: "bg-emerald-500/20 border-emerald-500/40",
-      badgeText: "text-[#00e575]",
+      badgeBg: "bg-blue-500/20 border-blue-500/40",
+      badgeText: "text-blue-400",
       icon: CheckCircle2,
     },
     EN_CURSO: {
-      badgeBg: "bg-emerald-500/20 border-emerald-500/40 animate-pulse",
-      badgeText: "text-[#00e575]",
+      badgeBg: "bg-red-500/20 border-red-500/40 animate-pulse",
+      badgeText: "text-red-400",
       icon: Scissors,
     },
     COMPLETADA: {
-      badgeBg: "bg-secondary text-muted-foreground border-border",
-      badgeText: "text-muted-foreground",
+      badgeBg: "bg-zinc-800 border-white/10",
+      badgeText: "text-zinc-400",
       icon: CheckCircle2,
     },
+    PENDIENTE: {
+      badgeBg: "bg-amber-500/20 border-amber-500/40",
+      badgeText: "text-amber-400",
+      icon: Clock,
+    },
     CANCELADA: {
-      badgeBg: "bg-destructive/20 border-destructive/40",
-      badgeText: "text-destructive",
+      badgeBg: "bg-red-950/40 border-red-500/40",
+      badgeText: "text-red-400",
       icon: XCircle,
     },
     NO_ASISTIO: {
-      badgeBg: "bg-destructive/20 border-destructive/40",
-      badgeText: "text-destructive",
+      badgeBg: "bg-red-950/40 border-red-500/40",
+      badgeText: "text-red-400",
       icon: AlertCircle,
     },
   };
 
   const statusStyle = STATUS_CONFIG[status] || {
-    badgeBg: "bg-emerald-500/20 border-emerald-500/40",
-    badgeText: "text-[#00e575]",
+    badgeBg: "bg-blue-500/20 border-blue-500/40",
+    badgeText: "text-blue-400",
     icon: Sparkles,
   };
   const StatusIcon = statusStyle.icon;
 
   return (
-    <main className="mx-auto min-h-dvh w-full max-w-lg px-4 pb-20 pt-5">
+    <main className="mx-auto min-h-dvh w-full max-w-lg px-4 pb-24 pt-5 text-white">
       {/* Top Bar */}
       <div className="mb-6 flex items-center justify-between">
         <Link
           href={session?.role === "BARBERO" ? "/barbero" : session ? "/citas" : "/"}
           aria-label="Volver"
-          className="flex h-11 w-11 items-center justify-center rounded-full border border-border bg-card text-foreground transition-all hover:bg-secondary active:scale-95"
+          className="flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-zinc-900 text-white transition-all hover:bg-zinc-800 active:scale-95"
         >
-          <ArrowLeft className="h-5 w-5" />
+          <ArrowLeft className="h-4 w-4" />
         </Link>
-        <span className="text-xs font-bold uppercase tracking-widest text-[#00e575]">
+        <span className="text-xs font-black uppercase tracking-widest text-red-500">
           Pase Digital VIP
         </span>
-        <div className="h-11 w-11 opacity-0" />
+        <div className="h-10 w-10 opacity-0" />
       </div>
 
       {/* World ID VIP Credential Card */}
