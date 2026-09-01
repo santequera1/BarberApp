@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/session";
+import { sendBarberInvitationEmail } from "@/lib/email";
 
 function slugify(text: string): string {
   return text
@@ -245,6 +246,15 @@ export async function POST(req: NextRequest) {
           data: { status: "ACEPTADA" },
         });
       }
+
+      // Enviar correo de notificación al barbero
+      const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://barber.wailus.co";
+      void sendBarberInvitationEmail({
+        toEmail: email,
+        barberName: b.name,
+        barbershopName: barbershop.name,
+        inviteLink: `${appUrl}/ingreso`,
+      });
     }
 
     return NextResponse.json({ ok: true, barbershop });
