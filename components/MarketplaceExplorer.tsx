@@ -616,38 +616,54 @@ export function MarketplaceExplorer({
             <ClientInteractiveMap
               shops={initialShops}
               activeShop={activeShop}
-              onSelectShop={(s) => setActiveShop(s)}
+              onSelectShop={(s) => {
+                setActiveShop(s);
+                setTimeout(() => {
+                  document.getElementById("floating-selected-shop-card")?.scrollIntoView({
+                    behavior: "smooth",
+                    block: "center",
+                  });
+                }, 120);
+              }}
             />
 
-            {/* Floating Card for Selected Pin */}
+            {/* Floating Card for Selected Pin (Rediseñada y Proporcionada) */}
             {activeShop && (
-              <div className="app-card overflow-hidden border border-red-500/40 bg-zinc-950 p-0 shadow-2xl animate-fade-in-up">
-                <div className="flex items-center justify-between p-3.5 bg-gradient-to-r from-red-950/40 via-zinc-900 to-black">
-                  <div className="flex items-center gap-3">
-                    <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-xl border border-white/10 bg-zinc-800">
-                      <img
-                        src={activeShop.coverUrl || "/logo.jpg"}
-                        alt={activeShop.name}
-                        className="h-full w-full object-cover"
-                      />
-                    </div>
-                    <div>
-                      <h4 className="text-sm font-black text-white">{activeShop.name}</h4>
-                      <p className="text-[11px] text-zinc-300 flex items-center gap-1">
-                        <MapPin className="h-3 w-3 text-red-500 shrink-0" />
-                        <span>{activeShop.address}, {activeShop.city}</span>
-                      </p>
-                      <span className="text-[10px] font-bold text-red-400">
-                        {activeShop.services.length} cortes disponibles
-                      </span>
-                    </div>
+              <div
+                id="floating-selected-shop-card"
+                className="overflow-hidden rounded-3xl border border-red-500/50 bg-gradient-to-br from-zinc-950 via-zinc-900 to-black p-4 shadow-2xl animate-fade-in-up"
+              >
+                <div className="flex items-center gap-3.5">
+                  {/* Shop Thumbnail */}
+                  <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-2xl border border-white/10 bg-zinc-800 shadow-md">
+                    <img
+                      src={activeShop.coverUrl || "/logo.jpg"}
+                      alt={activeShop.name}
+                      className="h-full w-full object-cover"
+                    />
                   </div>
 
+                  {/* Shop Info */}
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-1 text-[10px] font-black uppercase tracking-wider text-red-400">
+                      <Star className="h-3 w-3 fill-amber-400 text-amber-400" />
+                      <span>{activeShop.rating || 5.0} · {activeShop.services.length} cortes</span>
+                    </div>
+                    <h4 className="truncate text-sm font-black text-white leading-tight">
+                      {activeShop.name}
+                    </h4>
+                    <p className="truncate text-[11px] text-zinc-300 flex items-center gap-1 mt-0.5">
+                      <MapPin className="h-3 w-3 text-red-500 shrink-0" />
+                      <span>{activeShop.address}, {activeShop.city}</span>
+                    </p>
+                  </div>
+
+                  {/* Direct Action Button */}
                   <Link
                     href={`/b/${activeShop.slug}`}
-                    className="btn-red flex h-10 items-center justify-center gap-1.5 rounded-xl px-4 text-xs font-black uppercase tracking-wider"
+                    className="btn-red flex h-11 items-center justify-center gap-1.5 rounded-2xl px-4 text-xs font-black uppercase tracking-wider shrink-0 whitespace-nowrap shadow-lg shadow-red-500/20"
                   >
-                    <span>Agendar Aquí</span>
+                    <span>Agendar</span>
                     <ChevronRight className="h-4 w-4" />
                   </Link>
                 </div>

@@ -42,6 +42,9 @@ export interface ServiceOption {
   description: string;
   durationMinutes: number;
   price: number;
+  originalPrice?: number | null;
+  isOffer?: boolean;
+  offerBadge?: string | null;
   category?: string;
   imageUrl?: string;
   barbershopId?: string | null;
@@ -364,13 +367,13 @@ export function BookingFlow({
                   key={service.id}
                   onClick={() => toggleService(service.id)}
                   aria-pressed={active}
-                  className={`group relative flex items-center justify-between rounded-3xl border p-4 text-left transition-all duration-200 ${
+                  className={`group relative flex items-center justify-between gap-3 rounded-3xl border p-3.5 text-left transition-all duration-200 ${
                     active
                       ? "border-red-500 bg-red-950/20 shadow-lg shadow-red-500/10 ring-1 ring-red-500"
                       : "border-white/10 bg-zinc-900/90 hover:border-zinc-700"
                   }`}
                 >
-                  <div className="flex items-center gap-3.5 pr-2 flex-1">
+                  <div className="flex items-center gap-3 min-w-0 flex-1">
                     {/* Service Cut Image Thumbnail */}
                     <div className="h-14 w-14 shrink-0 overflow-hidden rounded-2xl bg-zinc-800 border border-white/10">
                       {service.imageUrl ? (
@@ -387,8 +390,13 @@ export function BookingFlow({
                     </div>
 
                     <div className="min-w-0 flex-1">
-                      <div className="flex items-center gap-2">
-                        <h3 className="text-sm font-bold text-white truncate">
+                      {service.isOffer && service.offerBadge && (
+                        <span className="inline-flex items-center gap-1 rounded-md bg-amber-500/20 px-1.5 py-0.5 text-[9px] font-black uppercase tracking-wider text-amber-400 border border-amber-500/30 mb-0.5">
+                          🔥 {service.offerBadge}
+                        </span>
+                      )}
+                      <div className="flex items-center gap-1.5">
+                        <h3 className="text-xs font-bold text-white leading-tight line-clamp-2 break-words">
                           {service.name}
                         </h3>
                         {active && (
@@ -397,28 +405,36 @@ export function BookingFlow({
                           </span>
                         )}
                       </div>
-                      <p className="mt-0.5 text-xs text-zinc-400 line-clamp-1">
+                      <p className="mt-0.5 text-[11px] text-zinc-400 line-clamp-1">
                         {service.description || "Servicio profesional con acabado impecable."}
                       </p>
-                      <div className="mt-1 flex items-center gap-2 text-[11px] text-zinc-400 font-medium">
+                      <div className="mt-1 flex items-center gap-2 text-[10px] text-zinc-400 font-medium">
                         <Clock className="h-3 w-3 text-red-500" />
                         <span>{formatDuration(service.durationMinutes)}</span>
                       </div>
                     </div>
                   </div>
 
-                  <div className="flex flex-col items-end justify-between self-stretch shrink-0 pl-2">
-                    <span className="font-mono text-sm font-black text-white">
-                      {formatCOP(service.price)}
-                    </span>
+                  <div className="flex flex-col items-end justify-between self-stretch shrink-0 pl-1">
+                    <div className="flex flex-col items-end">
+                      {service.originalPrice && service.originalPrice > service.price && (
+                        <span className="text-[10px] text-zinc-500 line-through font-mono">
+                          {formatCOP(service.originalPrice)}
+                        </span>
+                      )}
+                      <span className="font-mono text-xs font-black text-white whitespace-nowrap">
+                        {formatCOP(service.price)}
+                      </span>
+                    </div>
+
                     <div
-                      className={`mt-auto flex h-6 w-6 items-center justify-center rounded-full border transition-all ${
+                      className={`mt-auto flex h-5 w-5 items-center justify-center rounded-full border transition-all ${
                         active
                           ? "border-red-500 bg-red-500 text-white font-black"
                           : "border-white/20 bg-zinc-800 text-transparent"
                       }`}
                     >
-                      <Check className="h-3.5 w-3.5" />
+                      <Check className="h-3 w-3" />
                     </div>
                   </div>
                 </button>
