@@ -29,7 +29,7 @@ export default async function IngresoPage() {
             <img
               src="/logo.png"
               alt="BarberApp Logo"
-              className="h-28 w-auto object-contain drop-shadow-[0_12px_24px_rgba(239,68,68,0.4)]"
+              className="h-28 w-auto object-contain drop-shadow-[0_0_2.5px_rgba(255,255,255,0.95)] drop-shadow-[0_0_12px_rgba(255,255,255,0.3)] drop-shadow-[0_12px_24px_rgba(239,68,68,0.45)]"
             />
           </div>
           <span className="text-[10px] font-black uppercase tracking-widest text-red-500">

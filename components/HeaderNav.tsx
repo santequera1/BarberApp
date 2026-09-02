@@ -25,7 +25,7 @@ export function HeaderNav({
           <img
             src="/logo.png"
             alt="BarberApp Logo"
-            className="h-14 w-auto object-contain drop-shadow-[0_8px_16px_rgba(239,68,68,0.25)]"
+            className="h-14 w-auto object-contain drop-shadow-[0_0_2px_rgba(255,255,255,0.95)] drop-shadow-[0_0_8px_rgba(255,255,255,0.3)] drop-shadow-[0_8px_16px_rgba(239,68,68,0.35)]"
           />
         </Link>
         <div>

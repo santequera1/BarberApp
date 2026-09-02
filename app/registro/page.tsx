@@ -25,7 +25,7 @@ export default async function RegistroPage() {
             <img
               src="/logo.png"
               alt="BarberApp Logo"
-              className="h-28 w-auto object-contain drop-shadow-[0_12px_24px_rgba(59,130,246,0.4)]"
+              className="h-28 w-auto object-contain drop-shadow-[0_0_2.5px_rgba(255,255,255,0.95)] drop-shadow-[0_0_12px_rgba(255,255,255,0.3)] drop-shadow-[0_12px_24px_rgba(59,130,246,0.45)]"
             />
           </div>
           <div className="inline-flex items-center gap-1.5 rounded-full bg-blue-500/10 px-3 py-1 text-[11px] font-black text-blue-400 mb-2">
