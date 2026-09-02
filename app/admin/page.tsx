@@ -18,6 +18,7 @@ import { HeaderNav } from "@/components/HeaderNav";
 import { BottomNav } from "@/components/BottomNav";
 import { AdminMap } from "@/components/AdminMap";
 import { AdminShopManager } from "@/components/AdminShopManager";
+import { AdminUserManager } from "@/components/AdminUserManager";
 
 export default async function AdminPage() {
   const session = await getSession();
@@ -26,7 +27,7 @@ export default async function AdminPage() {
     redirect("/ingreso?error=Acceso+restringido+a+administradores");
   }
 
-  const [barbershops, totalBarbers, appointments, totalClients] =
+  const [barbershops, totalBarbers, appointments, totalClients, allUsers] =
     await Promise.all([
       prisma.barbershop.findMany({
         orderBy: { createdAt: "desc" },
@@ -62,6 +63,15 @@ export default async function AdminPage() {
         select: { total: true, status: true },
       }),
       prisma.user.count({ where: { role: "CLIENTE" } }),
+      prisma.user.findMany({
+        orderBy: { createdAt: "desc" },
+        include: {
+          barber: true,
+          ownedBarbershops: {
+            select: { id: true, name: true, slug: true, isFreelance: true },
+          },
+        },
+      }),
     ]);
 
   const activeShops = barbershops.filter((s) => s.status === "ACTIVA");
@@ -127,14 +137,19 @@ export default async function AdminPage() {
         <div className="app-card p-4 border-red-500/40 bg-red-950/10">
           <div className="flex items-center justify-between">
             <span className="text-[10px] font-black uppercase tracking-wider text-red-400">
-              Facturado
+              Usuarios Registrados
             </span>
-            <DollarSign className="h-4 w-4 text-red-400" />
+            <Users className="h-4 w-4 text-red-400" />
           </div>
           <p className="font-mono text-xl font-black text-white mt-1 truncate">
-            {formatCOP(totalVolume)}
+            {allUsers.length}
           </p>
         </div>
+      </section>
+
+      {/* Directory of Registered Users */}
+      <section className="mb-8">
+        <AdminUserManager initialUsers={allUsers} />
       </section>
 
       {/* Map Section */}
