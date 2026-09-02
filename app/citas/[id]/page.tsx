@@ -221,6 +221,18 @@ export default async function TicketPage({
               </span>
             </div>
 
+            {appointment.serviceLocationType === "DOMICILIO" && appointment.deliveryAddress && (
+              <div className="rounded-2xl bg-amber-500/10 p-3.5 border border-amber-500/30 text-xs text-zinc-200 flex items-start gap-2">
+                <MapPin className="h-4 w-4 text-amber-400 shrink-0 mt-0.5" />
+                <div>
+                  <span className="font-black text-amber-400 block uppercase text-[10px] tracking-wider">
+                    Dirección de Entrega a Domicilio
+                  </span>
+                  <p className="font-bold text-white mt-0.5">{appointment.deliveryAddress}</p>
+                </div>
+              </div>
+            )}
+
             {appointment.clientNotes && (
               <div className="rounded-2xl bg-white/5 p-3.5 border border-white/10 text-xs text-zinc-300">
                 <strong className="text-[#00e575]">Nota:</strong> “{appointment.clientNotes}”

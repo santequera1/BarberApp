@@ -23,6 +23,7 @@ import {
   Flame,
   Tag,
   ChevronDown,
+  Navigation,
 } from "lucide-react";
 import { formatCOP } from "@/lib/core/money";
 
@@ -40,6 +41,9 @@ export interface ExplorerShopItem {
   longitude: number;
   rating: number;
   reviewCount: number;
+  isFreelance?: boolean;
+  homeServiceFee?: number;
+  coverageArea?: string;
   status: string;
   services: Array<{
     id: string;
@@ -78,6 +82,9 @@ export interface FlatCorteItem {
   shopCity: string;
   shopRating: number;
   shopLogoUrl: string;
+  isFreelance?: boolean;
+  homeServiceFee?: number;
+  coverageArea?: string;
 }
 
 const CATEGORY_OPTIONS = [
@@ -101,7 +108,7 @@ export function MarketplaceExplorer({
 }: {
   initialShops: ExplorerShopItem[];
 }) {
-  const [viewMode, setViewMode] = useState<"cortes" | "shops">("cortes");
+  const [viewMode, setViewMode] = useState<"cortes" | "shops" | "domicilio">("cortes");
   const [showFullMap, setShowFullMap] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string>("");
@@ -150,6 +157,9 @@ export function MarketplaceExplorer({
           shopCity: shop.city,
           shopRating: shop.rating,
           shopLogoUrl: shop.logoUrl,
+          isFreelance: shop.isFreelance,
+          homeServiceFee: shop.homeServiceFee,
+          coverageArea: shop.coverageArea,
         });
       });
     });
@@ -167,7 +177,8 @@ export function MarketplaceExplorer({
         const matchShop = corte.shopName.toLowerCase().includes(query);
         const matchAddress = corte.shopAddress.toLowerCase().includes(query);
         const matchCity = corte.shopCity.toLowerCase().includes(query);
-        if (!matchName && !matchShop && !matchAddress && !matchCity) return false;
+        const matchArea = (corte.coverageArea || "").toLowerCase().includes(query);
+        if (!matchName && !matchShop && !matchAddress && !matchCity && !matchArea) return false;
       }
 
       // 2. City Filter
@@ -204,15 +215,16 @@ export function MarketplaceExplorer({
     });
   }, [allCortes, searchQuery, selectedCity, selectedCategory, minBudget, maxBudget]);
 
-  // Filtered Shops (Grouping)
-  const filteredShops = useMemo(() => {
+  // Filtered Physical Shops vs Freelance Barbers
+  const filteredPhysicalShops = useMemo(() => {
     const validShopIds = new Set(filteredCortes.map((c) => c.shopId));
-    return initialShops.filter((shop) => validShopIds.has(shop.id));
+    return initialShops.filter((shop) => !shop.isFreelance && validShopIds.has(shop.id));
   }, [initialShops, filteredCortes]);
 
-  const displayedShops = useMemo(() => {
-    return filteredShops.slice(0, shopsLimit);
-  }, [filteredShops, shopsLimit]);
+  const filteredFreelanceShops = useMemo(() => {
+    const validShopIds = new Set(filteredCortes.map((c) => c.shopId));
+    return initialShops.filter((shop) => shop.isFreelance && validShopIds.has(shop.id));
+  }, [initialShops, filteredCortes]);
 
   function clearFilters() {
     setSearchQuery("");
@@ -240,7 +252,7 @@ export function MarketplaceExplorer({
           type="text"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          placeholder="Buscar corte, fade, barbería o zona..."
+          placeholder="Buscar corte, fade, barbero, barbería o zona..."
           className="h-12 w-full rounded-2xl border border-white/10 bg-zinc-900/90 pl-11 pr-10 text-xs font-bold text-white placeholder-zinc-500 shadow-xl backdrop-blur-md focus:border-red-500 focus:outline-none focus:ring-1 focus:ring-red-500 transition-all"
         />
         {searchQuery && (
@@ -253,30 +265,42 @@ export function MarketplaceExplorer({
         )}
       </div>
 
-      {/* Two Main View Toggle Tabs (Simplificados a: Ver Cortes / Ver Barberías) */}
-      <div className="grid grid-cols-2 gap-2 rounded-2xl bg-zinc-900/90 p-1.5 border border-white/10 shadow-lg">
+      {/* Main View Toggle Tabs (Cortes / Barberías / A Domicilio) */}
+      <div className="grid grid-cols-3 gap-1.5 rounded-2xl bg-zinc-900/90 p-1.5 border border-white/10 shadow-lg">
         <button
           onClick={() => setViewMode("cortes")}
-          className={`flex items-center justify-center gap-1.5 rounded-xl py-2.5 text-xs font-black uppercase tracking-wider transition-all ${
+          className={`flex items-center justify-center gap-1 rounded-xl py-2.5 text-[11px] font-black uppercase tracking-wider transition-all ${
             viewMode === "cortes"
               ? "bg-red-500 text-white shadow-md shadow-red-500/20"
               : "text-zinc-400 hover:text-white"
           }`}
         >
-          <Scissors className="h-4 w-4" />
-          <span>Ver Cortes ({filteredCortes.length})</span>
+          <Scissors className="h-3.5 w-3.5" />
+          <span className="truncate">Cortes ({filteredCortes.length})</span>
         </button>
 
         <button
           onClick={() => setViewMode("shops")}
-          className={`flex items-center justify-center gap-1.5 rounded-xl py-2.5 text-xs font-black uppercase tracking-wider transition-all ${
+          className={`flex items-center justify-center gap-1 rounded-xl py-2.5 text-[11px] font-black uppercase tracking-wider transition-all ${
             viewMode === "shops"
               ? "bg-red-500 text-white shadow-md shadow-red-500/20"
               : "text-zinc-400 hover:text-white"
           }`}
         >
-          <Store className="h-4 w-4" />
-          <span>Ver Barberías ({filteredShops.length})</span>
+          <Store className="h-3.5 w-3.5" />
+          <span className="truncate">Barberías ({filteredPhysicalShops.length})</span>
+        </button>
+
+        <button
+          onClick={() => setViewMode("domicilio")}
+          className={`flex items-center justify-center gap-1 rounded-xl py-2.5 text-[11px] font-black uppercase tracking-wider transition-all ${
+            viewMode === "domicilio"
+              ? "bg-red-500 text-white shadow-md shadow-red-500/20"
+              : "text-zinc-400 hover:text-white"
+          }`}
+        >
+          <Sparkles className="h-3.5 w-3.5 text-amber-400" />
+          <span className="truncate">A Domicilio ({filteredFreelanceShops.length})</span>
         </button>
       </div>
 
@@ -419,12 +443,14 @@ export function MarketplaceExplorer({
         <span className="text-[11px] text-zinc-400 font-bold">
           {viewMode === "cortes"
             ? `${filteredCortes.length} cortes disponibles`
-            : `${filteredShops.length} barberías encontradas`}
+            : viewMode === "shops"
+            ? `${filteredPhysicalShops.length} barberías`
+            : `${filteredFreelanceShops.length} barberos a domicilio`}
         </span>
       </div>
 
       {/* ========================================================= */}
-      {/* VISTA 1: CATÁLOGO DE CORTES (CORTES CON OFERTAS APP)      */}
+      {/* VISTA 1: CATÁLOGO DE CORTES                               */}
       {/* ========================================================= */}
       {viewMode === "cortes" && (
         <div className="grid gap-3.5 sm:grid-cols-2">
@@ -463,12 +489,18 @@ export function MarketplaceExplorer({
                       </div>
                     </div>
 
-                    {/* Duration Badge */}
-                    <div className="absolute top-3 left-3">
+                    {/* Duration Badge / Freelance Tag */}
+                    <div className="absolute top-3 left-3 flex items-center gap-1.5">
                       <span className="flex items-center gap-1 rounded-full bg-black/75 px-2.5 py-0.5 text-[10px] font-bold text-zinc-300 backdrop-blur-md border border-white/10">
                         <Clock className="h-3 w-3 text-red-400" />
                         <span>{corte.durationMinutes} min</span>
                       </span>
+
+                      {corte.isFreelance && (
+                        <span className="flex items-center gap-1 rounded-full bg-amber-500/90 px-2.5 py-0.5 text-[9px] font-black text-black shadow-md">
+                          <span>🛵 A Domicilio</span>
+                        </span>
+                      )}
                     </div>
 
                     {/* Barber Shop Name Tag */}
@@ -501,7 +533,7 @@ export function MarketplaceExplorer({
                       </div>
 
                       <span className="shrink-0 text-[10px] text-zinc-500 font-medium">
-                        {corte.shopCity}
+                        {corte.isFreelance ? "A Domicilio" : corte.shopCity}
                       </span>
                     </div>
                   </div>
@@ -513,7 +545,7 @@ export function MarketplaceExplorer({
                     href={`/b/${corte.shopSlug}?serviceId=${corte.id}`}
                     className="btn-red flex h-10 w-full items-center justify-center gap-1.5 rounded-2xl text-xs font-black uppercase tracking-wider shadow-lg shadow-red-500/20"
                   >
-                    <span>Agendar este Corte</span>
+                    <span>{corte.isFreelance ? "Pedir a Domicilio" : "Agendar este Corte"}</span>
                     <ChevronRight className="h-4 w-4" />
                   </Link>
                 </div>
@@ -535,15 +567,14 @@ export function MarketplaceExplorer({
       )}
 
       {/* ========================================================= */}
-      {/* VISTA 2: LISTA DE BARBERÍAS (CARDS HORIZONTALES COMPACTAS)  */}
+      {/* VISTA 2: LISTA DE BARBERÍAS FÍSICAS (CARDS HORIZONTALES)   */}
       {/* ========================================================= */}
       {viewMode === "shops" && (
         <div className="flex flex-col gap-3">
-          {displayedShops.length > 0 ? (
-            displayedShops.map((shop) => {
+          {filteredPhysicalShops.length > 0 ? (
+            filteredPhysicalShops.map((shop) => {
               const prices = shop.services.map((s) => s.price);
               const minPrice = prices.length > 0 ? Math.min(...prices) : 18000;
-              const maxPrice = prices.length > 0 ? Math.max(...prices) : 45000;
 
               return (
                 <div
@@ -613,7 +644,7 @@ export function MarketplaceExplorer({
           ) : (
             <div className="rounded-3xl border border-white/10 bg-zinc-900/60 p-8 text-center text-zinc-400">
               <Store className="mx-auto h-8 w-8 text-zinc-600 mb-2" />
-              <p className="text-sm font-bold text-white">No se encontraron barberías con estos filtros</p>
+              <p className="text-sm font-bold text-white">No se encontraron barberías físicas</p>
               <button
                 onClick={clearFilters}
                 className="mt-3 text-xs font-bold text-red-400 underline"
@@ -622,16 +653,93 @@ export function MarketplaceExplorer({
               </button>
             </div>
           )}
+        </div>
+      )}
 
-          {/* Límite de 10 sedes con botón de ver más si hay más de 10 */}
-          {filteredShops.length > shopsLimit && (
-            <button
-              onClick={() => setShopsLimit((prev) => prev + 10)}
-              className="w-full py-3 mt-1 rounded-2xl border border-white/10 bg-zinc-900 text-xs font-black text-white uppercase tracking-wider hover:bg-zinc-800 transition-colors flex items-center justify-center gap-1.5"
-            >
-              <span>Ver más barberías (+{filteredShops.length - shopsLimit})</span>
-              <ChevronDown className="h-4 w-4 text-red-500" />
-            </button>
+      {/* ========================================================= */}
+      {/* VISTA 3: BARBEROS A DOMICILIO (INDEPENDIENTES)             */}
+      {/* ========================================================= */}
+      {viewMode === "domicilio" && (
+        <div className="flex flex-col gap-3">
+          {filteredFreelanceShops.length > 0 ? (
+            filteredFreelanceShops.map((barberShop) => {
+              const prices = barberShop.services.map((s) => s.price);
+              const minPrice = prices.length > 0 ? Math.min(...prices) : 25000;
+
+              return (
+                <div
+                  key={barberShop.id}
+                  className="app-card overflow-hidden border border-amber-500/30 p-3.5 shadow-xl transition-all hover:border-amber-500/60 bg-gradient-to-br from-zinc-900 via-zinc-950 to-black flex items-center gap-3.5"
+                >
+                  {/* Foto de Perfil / Retrato Profesional */}
+                  <div className="relative h-26 w-26 sm:h-28 sm:w-28 shrink-0 overflow-hidden rounded-2xl bg-zinc-900 border-2 border-amber-500/40 shadow-lg">
+                    <img
+                      src={barberShop.coverUrl || "/logo.jpg"}
+                      alt={barberShop.name}
+                      className="h-full w-full object-cover transition-transform duration-500 hover:scale-105"
+                    />
+                    <div className="absolute bottom-1 right-1 rounded-full bg-amber-500 px-1.5 py-0.5 text-[8px] font-black uppercase text-black">
+                      VIP
+                    </div>
+                  </div>
+
+                  {/* Contenido Derecha */}
+                  <div className="flex-1 min-w-0 flex flex-col justify-between py-0.5 gap-1">
+                    <div className="flex items-center justify-between gap-1">
+                      {/* Rating */}
+                      <div className="flex items-center gap-1 text-xs font-black text-amber-400">
+                        <Star className="h-3 w-3 fill-amber-400 text-amber-400" />
+                        <span>{barberShop.rating || 5.0}</span>
+                        <span className="text-[10px] text-zinc-400">({barberShop.reviewCount || 20}+ cortes)</span>
+                      </div>
+
+                      <span className="rounded-full bg-amber-500/20 px-2 py-0.5 text-[9px] font-black uppercase tracking-wider text-amber-300">
+                        A Domicilio
+                      </span>
+                    </div>
+
+                    <h3 className="truncate text-sm font-black text-white leading-tight">
+                      {barberShop.name}
+                    </h3>
+
+                    <p className="truncate text-[11px] text-zinc-300 flex items-center gap-1">
+                      <Navigation className="h-3 w-3 text-amber-400 shrink-0" />
+                      <span>{barberShop.coverageArea || "Toda la ciudad"}</span>
+                    </p>
+
+                    <div className="flex items-center justify-between mt-1 gap-2">
+                      <div className="flex flex-col">
+                        <span className="text-[9px] font-black uppercase text-zinc-400 tracking-wider">
+                          Cortes desde {formatCOP(minPrice)}
+                        </span>
+                        <span className="font-mono text-[11px] font-extrabold text-amber-400">
+                          + {formatCOP(barberShop.homeServiceFee || 10000)} domicilio
+                        </span>
+                      </div>
+
+                      <Link
+                        href={`/b/${barberShop.slug}`}
+                        className="btn-red flex h-8 items-center justify-center gap-1 rounded-xl px-3.5 text-xs font-black uppercase tracking-wider shrink-0 shadow-md shadow-red-500/20"
+                      >
+                        <span>Pedir Cita</span>
+                        <ChevronRight className="h-3.5 w-3.5" />
+                      </Link>
+                    </div>
+                  </div>
+                </div>
+              );
+            })
+          ) : (
+            <div className="rounded-3xl border border-white/10 bg-zinc-900/60 p-8 text-center text-zinc-400">
+              <Sparkles className="mx-auto h-8 w-8 text-amber-400 mb-2" />
+              <p className="text-sm font-bold text-white">No hay barberos a domicilio disponibles</p>
+              <button
+                onClick={clearFilters}
+                className="mt-3 text-xs font-bold text-red-400 underline"
+              >
+                Restablecer búsqueda
+              </button>
+            </div>
           )}
         </div>
       )}
@@ -650,7 +758,7 @@ export function MarketplaceExplorer({
                 Mapa de Barberías Cercanas
               </h3>
               <p className="text-[11px] text-zinc-400">
-                {initialShops.length} sedes registradas en Cartagena
+                {initialShops.length} sedes y barberos registrados en Cartagena
               </p>
             </div>
           </div>
@@ -802,7 +910,7 @@ function ClientInteractiveMap({
 
         const customHtml = `
           <div style="
-            background: ${isSelected ? "#2563EB" : "#EF4444"};
+            background: ${isSelected ? "#2563EB" : shop.isFreelance ? "#F59E0B" : "#EF4444"};
             color: #FFFFFF;
             width: ${isSelected ? "44px" : "36px"};
             height: ${isSelected ? "44px" : "36px"};
@@ -817,7 +925,7 @@ function ClientInteractiveMap({
             cursor: pointer;
             transition: all 0.2s ease;
           ">
-            💈
+            ${shop.isFreelance ? "🛵" : "💈"}
           </div>
         `;
 

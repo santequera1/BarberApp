@@ -115,6 +115,9 @@ export interface CreateAppointmentInput {
   /** "HH:mm" local Bogotá */
   time: string;
   clientNotes?: string;
+  serviceLocationType?: "SEDE" | "DOMICILIO";
+  deliveryAddress?: string;
+  deliveryFee?: number;
 }
 
 /** Crea una cita validando todas las reglas de negocio. */
@@ -139,6 +142,8 @@ export async function createAppointment(input: CreateAppointmentInput) {
 
   const durationMinutes = services.reduce((a, s) => a + s.durationMinutes, 0);
   const subtotal = services.reduce((a, s) => a + s.price, 0);
+  const deliveryFee = input.deliveryFee || 0;
+  const total = subtotal + deliveryFee;
 
   const barber = await prisma.barber.findUnique({
     where: { id: input.barberId },
@@ -190,7 +195,10 @@ export async function createAppointment(input: CreateAppointmentInput) {
         endsAt,
         status: "CONFIRMADA",
         subtotal,
-        total: subtotal,
+        deliveryFee,
+        total,
+        serviceLocationType: input.serviceLocationType || "SEDE",
+        deliveryAddress: input.deliveryAddress || "",
         clientNotes: input.clientNotes ?? "",
         services: {
           create: services.map((s) => ({

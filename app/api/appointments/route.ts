@@ -14,6 +14,9 @@ const createSchema = z.object({
   date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
   time: z.string().regex(/^\d{2}:\d{2}$/),
   clientNotes: z.string().max(300).optional(),
+  serviceLocationType: z.enum(["SEDE", "DOMICILIO"]).optional().default("SEDE"),
+  deliveryAddress: z.string().max(300).optional().default(""),
+  deliveryFee: z.number().optional().default(0),
   // Campos opcionales si ya está autenticado, requeridos para Guest Checkout
   guestName: z.string().min(2).optional(),
   guestPhone: z.string().min(7).optional(),
@@ -100,6 +103,9 @@ export async function POST(req: NextRequest) {
       date: parsed.data.date,
       time: parsed.data.time,
       clientNotes: parsed.data.clientNotes,
+      serviceLocationType: parsed.data.serviceLocationType,
+      deliveryAddress: parsed.data.deliveryAddress,
+      deliveryFee: parsed.data.deliveryFee,
     });
 
     return NextResponse.json({ ok: true, id: appointment.id });

@@ -34,6 +34,9 @@ export interface BarbershopOption {
   address: string;
   city: string;
   rating: number;
+  isFreelance?: boolean;
+  homeServiceFee?: number;
+  coverageArea?: string;
 }
 
 export interface ServiceOption {
@@ -143,12 +146,23 @@ export function BookingFlow({
   const [guestPhone, setGuestPhone] = useState("");
   const [guestEmail, setGuestEmail] = useState("");
 
+  // Domicilio state (si el barbero es freelance)
+  const [deliveryAddress, setDeliveryAddress] = useState("");
+  const [deliveryNeighborhood, setDeliveryNeighborhood] = useState("");
+
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
   const currentShop = useMemo(() => {
     return barbershops.find((s) => s.id === currentShopId) || barbershops[0];
   }, [barbershops, currentShopId]);
+
+  // Si es barbero independiente y tiene 1 barbero, auto-seleccionarlo
+  useEffect(() => {
+    if (currentShop?.isFreelance && barbers.length > 0 && selectedBarber === "any") {
+      setSelectedBarber(barbers[0].id);
+    }
+  }, [currentShop, barbers, selectedBarber]);
 
   const days = useMemo(() => {
     const today = todayBogotaClient();
@@ -215,6 +229,11 @@ export function BookingFlow({
       }
     }
 
+    if (currentShop?.isFreelance && !deliveryAddress.trim()) {
+      setError("Por favor ingresa la dirección de entrega para tu servicio a domicilio.");
+      return;
+    }
+
     setSubmitting(true);
     setError(null);
     try {
@@ -228,6 +247,11 @@ export function BookingFlow({
           date,
           time: selectedSlot.time,
           clientNotes: notes,
+          serviceLocationType: currentShop?.isFreelance ? "DOMICILIO" : "SEDE",
+          deliveryAddress: currentShop?.isFreelance
+            ? `${deliveryAddress.trim()}${deliveryNeighborhood.trim() ? ` (${deliveryNeighborhood.trim()})` : ""}`
+            : "",
+          deliveryFee: currentShop?.isFreelance ? (currentShop.homeServiceFee || 0) : 0,
           ...(!currentUser
             ? {
                 guestName: guestName.trim(),
@@ -681,6 +705,13 @@ export function BookingFlow({
               </div>
 
               <div className="flex justify-between items-center">
+                <dt className="text-zinc-400">Modalidad:</dt>
+                <dd className="font-bold text-amber-400">
+                  {currentShop?.isFreelance ? "🛵 A Domicilio VIP" : "🏬 En Sede Física"}
+                </dd>
+              </div>
+
+              <div className="flex justify-between items-center">
                 <dt className="text-zinc-400">Fecha:</dt>
                 <dd className="font-bold text-white">
                   {formatDateLong(date)}
@@ -701,19 +732,72 @@ export function BookingFlow({
                 </dd>
               </div>
 
+              {currentShop?.isFreelance && (currentShop.homeServiceFee || 0) > 0 && (
+                <div className="flex justify-between items-center text-zinc-400">
+                  <dt>Tarifa Base Domicilio:</dt>
+                  <dd className="font-mono font-bold text-white">
+                    {formatCOP(currentShop.homeServiceFee || 0)}
+                  </dd>
+                </div>
+              )}
+
               <div className="mt-2 flex justify-between items-center border-t border-white/10 pt-3">
                 <dt className="font-black text-white text-base">Total a pagar:</dt>
                 <dd className="font-mono text-2xl font-black text-white">
-                  {formatCOP(totalPrice)}
+                  {formatCOP(totalPrice + (currentShop?.isFreelance ? (currentShop.homeServiceFee || 0) : 0))}
                 </dd>
               </div>
             </dl>
 
             <div className="mt-4 rounded-2xl bg-zinc-900/90 p-3.5 text-xs text-zinc-300 flex items-center gap-2 border border-white/5">
               <CheckCircle2 className="h-4 w-4 text-blue-400 shrink-0" />
-              <span>Pago en la sede al finalizar tu servicio (efectivo o transferencia).</span>
+              <span>
+                {currentShop?.isFreelance
+                  ? "Pago al barbero al finalizar tu corte en tu domicilio (efectivo o Nequi)."
+                  : "Pago en la sede al finalizar tu servicio (efectivo o transferencia)."}
+              </span>
             </div>
           </div>
+
+          {/* Si es servicio a domicilio, capturar dirección de entrega */}
+          {currentShop?.isFreelance && (
+            <div className="app-card p-5 border border-red-500/30 animate-fade-in-up bg-zinc-950">
+              <div className="flex items-center gap-2 mb-3">
+                <MapPin className="h-4 w-4 text-red-500" />
+                <h3 className="text-xs font-black uppercase tracking-wider text-white">
+                  Dirección para tu Servicio a Domicilio *
+                </h3>
+              </div>
+
+              <div className="flex flex-col gap-3">
+                <div>
+                  <label className="text-[11px] font-bold text-zinc-400 mb-1 block">
+                    Dirección Exacta, Edificio / Conjunto y Apto *
+                  </label>
+                  <input
+                    required
+                    value={deliveryAddress}
+                    onChange={(e) => setDeliveryAddress(e.target.value)}
+                    placeholder="Ej: Cra 2 # 8-40, Edificio Royal, Apto 402"
+                    className="h-11 w-full rounded-xl border border-white/10 bg-zinc-900 px-3 text-xs text-white placeholder-zinc-500 focus:border-red-500 focus:outline-none"
+                  />
+                </div>
+
+                <div>
+                  <label className="text-[11px] font-bold text-zinc-400 mb-1 block">
+                    Barrio / Sector *
+                  </label>
+                  <input
+                    required
+                    value={deliveryNeighborhood}
+                    onChange={(e) => setDeliveryNeighborhood(e.target.value)}
+                    placeholder="Ej: Bocagrande, Manga, Marbella, Crespo..."
+                    className="h-11 w-full rounded-xl border border-white/10 bg-zinc-900 px-3 text-xs text-white placeholder-zinc-500 focus:border-red-500 focus:outline-none"
+                  />
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Guest Checkout Fields (si no ha iniciado sesión) */}
           {!currentUser && (

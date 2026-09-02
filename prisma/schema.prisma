@@ -44,6 +44,10 @@ model Barbershop {
   instagram   String   @default("")
   tiktok      String   @default("")
   facebook    String   @default("")
+  // SEDE | INDEPENDIENTE (A DOMICILIO)
+  isFreelance Boolean  @default(false)
+  homeServiceFee Int   @default(0)
+  coverageArea String  @default("")
   // ACTIVA | INACTIVA
   status      String   @default("ACTIVA")
   ownerId     String?
@@ -180,6 +184,10 @@ model Appointment {
   subtotal           Int
   discountAmount     Int         @default(0)
   total              Int
+  // SEDE | DOMICILIO
+  serviceLocationType String     @default("SEDE")
+  deliveryAddress    String      @default("")
+  deliveryFee        Int         @default(0)
   // PENDIENTE | PAGADO
   paymentStatus      String      @default("PENDIENTE")
   clientNotes        String      @default("")

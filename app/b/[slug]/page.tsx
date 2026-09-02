@@ -179,15 +179,15 @@ export default async function PublicBarbershopPage({
 
             {/* Shop Title Info */}
             <div className="absolute bottom-3 left-4 right-4">
-              <span className="text-[10px] font-black uppercase tracking-widest text-red-500">
-                Sede Verificada
+              <span className="text-[10px] font-black uppercase tracking-widest text-red-500 flex items-center gap-1">
+                <span>{shop.isFreelance ? "🛵 Barbero Independiente VIP" : "Sede Verificada"}</span>
               </span>
               <h1 className="text-2xl font-black text-white">
                 {shop.name}
               </h1>
               <p className="flex items-center gap-1 text-xs text-zinc-300 mt-0.5">
                 <MapPin className="h-3.5 w-3.5 text-red-500 shrink-0" />
-                <span>{shop.address}, {shop.city}</span>
+                <span>{shop.isFreelance ? `Cobertura: ${shop.coverageArea || shop.city}` : `${shop.address}, ${shop.city}`}</span>
               </p>
             </div>
           </div>
@@ -204,20 +204,25 @@ export default async function PublicBarbershopPage({
               <div className="flex flex-col gap-0.5">
                 <span className="text-[10px] font-black uppercase tracking-wider text-red-400 flex items-center gap-1">
                   <DollarSign className="h-3 w-3" />
-                  <span>Rango de Precios</span>
+                  <span>{shop.isFreelance ? "Tarifas de Cortes" : "Rango de Precios"}</span>
                 </span>
                 <p className="font-mono text-xs font-black text-white">
-                  Desde {formatCOP(minPrice)} hasta {formatCOP(maxPrice)}
+                  Desde {formatCOP(minPrice)}
                 </p>
+                {shop.isFreelance && shop.homeServiceFee > 0 && (
+                  <span className="text-[10px] font-bold text-amber-400">
+                    + {formatCOP(shop.homeServiceFee)} domicilio base
+                  </span>
+                )}
               </div>
 
               <div className="flex flex-col gap-0.5 border-l border-white/10 pl-2.5">
                 <span className="text-[10px] font-black uppercase tracking-wider text-blue-400 flex items-center gap-1">
                   <Clock className="h-3 w-3" />
-                  <span>Horario de Atención</span>
+                  <span>{shop.isFreelance ? "Disponibilidad Domicilios" : "Horario de Atención"}</span>
                 </span>
                 <p className="text-xs font-bold text-white">
-                  Lun - Sáb: 8:00 AM – 9:00 PM
+                  {shop.isFreelance ? "Lunes a Domingo: 7 AM – 10 PM" : "Lun - Sáb: 8:00 AM – 9:00 PM"}
                 </p>
               </div>
             </div>

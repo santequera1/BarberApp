@@ -47,6 +47,9 @@ const createSchema = z.object({
     )
     .optional()
     .default([]),
+  isFreelance: z.boolean().optional().default(false),
+  homeServiceFee: z.number().optional().default(0),
+  coverageArea: z.string().optional().default(""),
   openTime: z.string().default("08:00"),
   closeTime: z.string().default("20:00"),
 });
@@ -77,6 +80,9 @@ export async function POST(req: NextRequest) {
     ownerPassword,
     services,
     barberEmails,
+    isFreelance,
+    homeServiceFee,
+    coverageArea,
     openTime,
     closeTime,
   } = parsed.data;
@@ -133,7 +139,7 @@ export async function POST(req: NextRequest) {
       data: {
         name,
         slug,
-        address,
+        address: address || "Servicio a Domicilio",
         city,
         phone,
         description,
@@ -141,6 +147,9 @@ export async function POST(req: NextRequest) {
         coverUrl: coverUrl || "",
         photos: JSON.stringify(photos || []),
         ownerId: ownerUserId,
+        isFreelance: Boolean(isFreelance),
+        homeServiceFee: Number(homeServiceFee) || 0,
+        coverageArea: coverageArea || (isFreelance ? "Toda la ciudad" : "Sede Física"),
         status: "ACTIVA",
       },
     });
