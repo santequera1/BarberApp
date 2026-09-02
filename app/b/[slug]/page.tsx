@@ -222,23 +222,23 @@ export default async function PublicBarbershopPage({
               </div>
             </div>
 
-            {/* Social Icons Row (Iconos circulares elegantes) */}
+            {/* Social Icons Row (Iconos circulares compactos y todos en rojo oficial) */}
             <div className="flex flex-col gap-2 pt-1 border-t border-white/10">
               <span className="text-[10px] font-black uppercase tracking-wider text-zinc-400">
                 Redes & Contacto Directo
               </span>
 
-              <div className="flex items-center gap-3">
-                {/* Official WhatsApp Green Button */}
+              <div className="flex items-center gap-2.5">
+                {/* WhatsApp */}
                 {shop.phone && (
                   <a
                     href={`https://wa.me/${waNumber}?text=${waText}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     title="WhatsApp Oficial"
-                    className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#25D366] text-white shadow-lg shadow-[#25D366]/20 transition-transform hover:scale-105 active:scale-95"
+                    className="flex h-10 w-10 items-center justify-center rounded-xl bg-red-600 text-white shadow-md shadow-red-600/25 transition-transform hover:scale-105 active:scale-95"
                   >
-                    <WhatsAppIcon className="h-6 w-6" />
+                    <WhatsAppIcon className="h-4.5 w-4.5" />
                   </a>
                 )}
 
@@ -248,34 +248,34 @@ export default async function PublicBarbershopPage({
                   target="_blank"
                   rel="noopener noreferrer"
                   title="Cómo Llegar en Google Maps"
-                  className="flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-600 text-white shadow-lg shadow-blue-600/20 transition-transform hover:scale-105 active:scale-95"
+                  className="flex h-10 w-10 items-center justify-center rounded-xl bg-red-600 text-white shadow-md shadow-red-600/25 transition-transform hover:scale-105 active:scale-95"
                 >
-                  <Navigation className="h-6 w-6" />
+                  <Navigation className="h-4.5 w-4.5" />
                 </a>
 
-                {/* Instagram Icon */}
+                {/* Instagram */}
                 {shop.instagram && (
                   <a
                     href={`https://instagram.com/${shop.instagram.replace("@", "")}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     title={`Instagram @${shop.instagram.replace("@", "")}`}
-                    className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-tr from-amber-500 via-rose-500 to-purple-600 text-white shadow-lg shadow-rose-500/20 transition-transform hover:scale-105 active:scale-95"
+                    className="flex h-10 w-10 items-center justify-center rounded-xl bg-red-600 text-white shadow-md shadow-red-600/25 transition-transform hover:scale-105 active:scale-95"
                   >
-                    <InstagramIcon className="h-6 w-6" />
+                    <InstagramIcon className="h-4.5 w-4.5" />
                   </a>
                 )}
 
-                {/* TikTok Icon */}
+                {/* TikTok */}
                 {shop.tiktok && (
                   <a
                     href={`https://tiktok.com/@${shop.tiktok.replace("@", "")}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     title={`TikTok @${shop.tiktok.replace("@", "")}`}
-                    className="flex h-12 w-12 items-center justify-center rounded-2xl bg-zinc-900 border border-white/20 text-white shadow-lg transition-transform hover:scale-105 active:scale-95"
+                    className="flex h-10 w-10 items-center justify-center rounded-xl bg-red-600 text-white shadow-md shadow-red-600/25 transition-transform hover:scale-105 active:scale-95"
                   >
-                    <TikTokIcon className="h-6 w-6 text-cyan-400" />
+                    <TikTokIcon className="h-4.5 w-4.5" />
                   </a>
                 )}
               </div>

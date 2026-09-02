@@ -22,6 +22,7 @@ import {
   Check,
   Flame,
   Tag,
+  ChevronDown,
 } from "lucide-react";
 import { formatCOP } from "@/lib/core/money";
 
@@ -80,15 +81,19 @@ export interface FlatCorteItem {
 }
 
 const CATEGORY_OPTIONS = [
-  { id: "corte", label: "Fades & Cortes" },
-  { id: "barba", label: "Barbas & Afeitados" },
-  { id: "combo", label: "Combos VIP" },
+  { id: "corte", label: "💈 Fades & Cortes" },
+  { id: "barba", label: "🧔 Barba & Afeitado" },
+  { id: "cejas", label: "✂️ Cejas & Perfilado" },
+  { id: "combo", label: "👑 Combos VIP" },
+  { id: "freestyle", label: "🔥 Diseños Freestyle" },
+  { id: "facial", label: "💆 Faciales & Spa" },
 ];
 
-const PRICE_RANGE_PRESETS = [
-  { id: "range-1", label: "$10.000 – $25.000", min: 10000, max: 25000 },
-  { id: "range-2", label: "$25.000 – $38.000", min: 25000, max: 38000 },
-  { id: "range-3", label: "$38.000 – $60.000+", min: 38000, max: 999999 },
+const PRICE_PRESETS = [
+  { id: "p-all", label: "Todos", min: 0, max: 120000 },
+  { id: "p-1", label: "$10k – $30k", min: 10000, max: 30000 },
+  { id: "p-2", label: "$30k – $60k", min: 30000, max: 60000 },
+  { id: "p-3", label: "$60k – $100k+", min: 60000, max: 150000 },
 ];
 
 export function MarketplaceExplorer({
@@ -99,12 +104,12 @@ export function MarketplaceExplorer({
   const [viewMode, setViewMode] = useState<"cortes" | "shops">("cortes");
   const [showFullMap, setShowFullMap] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  // Ningún filtro seleccionado por defecto
   const [selectedCategory, setSelectedCategory] = useState<string>("");
-  const [selectedPriceRange, setSelectedPriceRange] = useState<string>("");
   const [selectedCity, setSelectedCity] = useState<string>("");
-  const [maxPriceSlider, setMaxPriceSlider] = useState<number>(70000);
-  const [useSlider, setUseSlider] = useState(false);
+  const [minBudget, setMinBudget] = useState<number>(0);
+  const [maxBudget, setMaxBudget] = useState<number>(100000);
+  const [selectedPreset, setSelectedPreset] = useState<string>("");
+  const [shopsLimit, setShopsLimit] = useState<number>(10);
   const [activeShop, setActiveShop] = useState<ExplorerShopItem | null>(null);
 
   // Extract unique cities/zones
@@ -151,18 +156,6 @@ export function MarketplaceExplorer({
     return list;
   }, [initialShops]);
 
-  // Determine active price boundaries
-  const priceBounds = useMemo(() => {
-    if (useSlider) {
-      return { min: 0, max: maxPriceSlider };
-    }
-    if (selectedPriceRange) {
-      const preset = PRICE_RANGE_PRESETS.find((p) => p.id === selectedPriceRange);
-      if (preset) return { min: preset.min, max: preset.max };
-    }
-    return { min: 0, max: 999999 };
-  }, [useSlider, maxPriceSlider, selectedPriceRange]);
-
   // Filtered Cortes (Items)
   const filteredCortes = useMemo(() => {
     const query = searchQuery.trim().toLowerCase();
@@ -183,18 +176,33 @@ export function MarketplaceExplorer({
       }
 
       // 3. Category Filter
-      if (selectedCategory && corte.category.toLowerCase() !== selectedCategory.toLowerCase()) {
-        return false;
+      if (selectedCategory) {
+        const cat = selectedCategory.toLowerCase();
+        const corteCat = corte.category.toLowerCase();
+        const corteName = corte.name.toLowerCase();
+        if (cat === "corte" && !corteCat.includes("corte") && !corteName.includes("fade") && !corteName.includes("corte")) {
+          return false;
+        } else if (cat === "barba" && !corteCat.includes("barba") && !corteName.includes("barba") && !corteName.includes("afeitado")) {
+          return false;
+        } else if (cat === "cejas" && !corteName.includes("ceja")) {
+          return false;
+        } else if (cat === "combo" && !corteCat.includes("combo") && !corteName.includes("combo") && !corteName.includes("vip")) {
+          return false;
+        } else if (cat === "freestyle" && !corteName.includes("freestyle") && !corteName.includes("diseño") && !corteName.includes("navaja")) {
+          return false;
+        } else if (cat === "facial" && !corteName.includes("facial") && !corteName.includes("mascarilla") && !corteName.includes("black")) {
+          return false;
+        }
       }
 
-      // 4. Price Range Filter
-      if (corte.price < priceBounds.min || corte.price > priceBounds.max) {
+      // 4. Min & Max Price Range Filter
+      if (corte.price < minBudget || corte.price > maxBudget) {
         return false;
       }
 
       return true;
     });
-  }, [allCortes, searchQuery, selectedCity, selectedCategory, priceBounds]);
+  }, [allCortes, searchQuery, selectedCity, selectedCategory, minBudget, maxBudget]);
 
   // Filtered Shops (Grouping)
   const filteredShops = useMemo(() => {
@@ -202,45 +210,51 @@ export function MarketplaceExplorer({
     return initialShops.filter((shop) => validShopIds.has(shop.id));
   }, [initialShops, filteredCortes]);
 
+  const displayedShops = useMemo(() => {
+    return filteredShops.slice(0, shopsLimit);
+  }, [filteredShops, shopsLimit]);
+
   function clearFilters() {
     setSearchQuery("");
     setSelectedCategory("");
-    setSelectedPriceRange("");
     setSelectedCity("");
-    setUseSlider(false);
-    setMaxPriceSlider(70000);
+    setMinBudget(0);
+    setMaxBudget(100000);
+    setSelectedPreset("");
   }
 
   const hasActiveFilters =
     Boolean(searchQuery) ||
     Boolean(selectedCategory) ||
-    Boolean(selectedPriceRange) ||
     Boolean(selectedCity) ||
-    useSlider;
+    minBudget > 0 ||
+    maxBudget < 100000 ||
+    Boolean(selectedPreset);
 
   return (
-    <div className="flex flex-col gap-4 animate-fade-in-up">
-      {/* Search Input Bar */}
-      <div className="relative flex items-center">
-        <Search className="h-4 w-4 text-zinc-400 absolute left-4 pointer-events-none" />
+    <div className="flex flex-col gap-4">
+      {/* Search Bar */}
+      <div className="relative">
+        <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400" />
         <input
+          type="text"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          placeholder="Busca corte (Fade, Barba, VIP), barbería o zona..."
-          className="h-13 w-full rounded-2xl border border-white/10 bg-zinc-900/90 pl-11 pr-10 text-base text-white placeholder:text-zinc-500 shadow-xl focus:border-red-500 focus:outline-none"
+          placeholder="Buscar corte, fade, barbería o zona..."
+          className="h-12 w-full rounded-2xl border border-white/10 bg-zinc-900/90 pl-11 pr-10 text-xs font-bold text-white placeholder-zinc-500 shadow-xl backdrop-blur-md focus:border-red-500 focus:outline-none focus:ring-1 focus:ring-red-500 transition-all"
         />
         {searchQuery && (
           <button
             onClick={() => setSearchQuery("")}
-            className="absolute right-3.5 flex h-6 w-6 items-center justify-center rounded-full bg-zinc-800 text-zinc-400 hover:text-white"
+            className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full p-1 text-zinc-400 hover:text-white"
           >
-            <X className="h-3.5 w-3.5" />
+            <X className="h-4 w-4" />
           </button>
         )}
       </div>
 
-      {/* Top 2-Option View Switcher (Por Cortes / Por Barberías) */}
-      <div className="grid grid-cols-2 rounded-2xl bg-zinc-900/90 p-1 border border-white/10 shadow-lg">
+      {/* Two Main View Toggle Tabs (Simplificados a: Ver Cortes / Ver Barberías) */}
+      <div className="grid grid-cols-2 gap-2 rounded-2xl bg-zinc-900/90 p-1.5 border border-white/10 shadow-lg">
         <button
           onClick={() => setViewMode("cortes")}
           className={`flex items-center justify-center gap-1.5 rounded-xl py-2.5 text-xs font-black uppercase tracking-wider transition-all ${
@@ -250,7 +264,7 @@ export function MarketplaceExplorer({
           }`}
         >
           <Scissors className="h-4 w-4" />
-          <span>Catálogo de Cortes ({filteredCortes.length})</span>
+          <span>Ver Cortes ({filteredCortes.length})</span>
         </button>
 
         <button
@@ -262,11 +276,11 @@ export function MarketplaceExplorer({
           }`}
         >
           <Store className="h-4 w-4" />
-          <span>Barberías ({filteredShops.length})</span>
+          <span>Ver Barberías ({filteredShops.length})</span>
         </button>
       </div>
 
-      {/* Category Chips Carousel (Sin ninguno seleccionado por defecto) */}
+      {/* Category Chips Carousel */}
       <div className="flex gap-2 overflow-x-auto no-scrollbar pb-0.5">
         {CATEGORY_OPTIONS.map((cat) => {
           const active = selectedCategory === cat.id;
@@ -274,13 +288,12 @@ export function MarketplaceExplorer({
             <button
               key={cat.id}
               onClick={() => setSelectedCategory(active ? "" : cat.id)}
-              className={`flex shrink-0 items-center gap-1.5 rounded-full px-4 py-2 text-xs font-bold transition-all ${
+              className={`flex shrink-0 items-center gap-1.5 rounded-full px-3.5 py-2 text-xs font-bold transition-all ${
                 active
                   ? "bg-red-500 text-white shadow-lg shadow-red-500/30 font-black"
                   : "bg-zinc-900/90 text-zinc-400 border border-white/10 hover:text-white"
               }`}
             >
-              <Scissors className="h-3.5 w-3.5" />
               <span>{cat.label}</span>
               {active && <Check className="h-3 w-3" />}
             </button>
@@ -288,7 +301,7 @@ export function MarketplaceExplorer({
         })}
       </div>
 
-      {/* Rango de Precios (Presets + Slider) */}
+      {/* Rango de Presupuesto (Mínimo Y Máximo) */}
       <div className="rounded-2xl border border-white/10 bg-zinc-900/70 p-3.5 shadow-xl">
         <div className="flex items-center justify-between mb-2.5">
           <span className="text-xs font-bold text-white flex items-center gap-1.5">
@@ -297,28 +310,29 @@ export function MarketplaceExplorer({
           </span>
 
           <span className="font-mono text-xs font-black text-red-400">
-            {useSlider
-              ? `Hasta ${formatCOP(maxPriceSlider)}`
-              : selectedPriceRange
-              ? PRICE_RANGE_PRESETS.find((p) => p.id === selectedPriceRange)?.label
-              : "Sin límite"}
+            {minBudget === 0 && maxBudget >= 100000
+              ? "Cualquier precio"
+              : `${formatCOP(minBudget)} – ${formatCOP(maxBudget)}`}
           </span>
         </div>
 
-        {/* Range Preset Buttons */}
-        <div className="grid grid-cols-3 gap-1.5 mb-2.5">
-          {PRICE_RANGE_PRESETS.map((preset) => {
-            const active = !useSlider && selectedPriceRange === preset.id;
+        {/* Quick Range Preset Buttons */}
+        <div className="grid grid-cols-4 gap-1.5 mb-3">
+          {PRICE_PRESETS.map((preset) => {
+            const active =
+              selectedPreset === preset.id ||
+              (minBudget === preset.min && maxBudget === preset.max);
             return (
               <button
                 key={preset.id}
                 onClick={() => {
-                  setUseSlider(false);
-                  setSelectedPriceRange(active ? "" : preset.id);
+                  setSelectedPreset(preset.id);
+                  setMinBudget(preset.min);
+                  setMaxBudget(preset.max);
                 }}
-                className={`rounded-xl px-2 py-1.5 text-center text-[11px] font-bold transition-all ${
+                className={`rounded-xl px-2 py-1.5 text-center text-[10px] font-bold transition-all ${
                   active
-                    ? "bg-red-500 text-white font-extrabold shadow-sm"
+                    ? "bg-red-500 text-white font-black shadow-sm"
                     : "bg-black/60 text-zinc-400 border border-white/5 hover:text-white"
                 }`}
               >
@@ -328,25 +342,49 @@ export function MarketplaceExplorer({
           })}
         </div>
 
-        {/* Interactive Price Range Slider */}
-        <div className="flex flex-col gap-1 border-t border-white/10 pt-2.5">
-          <div className="flex items-center justify-between text-[11px] text-zinc-400">
-            <span>Ajuste fino de presupuesto:</span>
-            <span className="font-mono font-bold text-white">{formatCOP(maxPriceSlider)}</span>
+        {/* Dual Interactive Sliders for Min and Max */}
+        <div className="grid grid-cols-2 gap-3 border-t border-white/10 pt-2.5">
+          <div className="flex flex-col gap-1">
+            <div className="flex items-center justify-between text-[11px] text-zinc-400">
+              <span>Mínimo:</span>
+              <span className="font-mono font-bold text-white">{formatCOP(minBudget)}</span>
+            </div>
+            <input
+              type="range"
+              min={0}
+              max={60000}
+              step={5000}
+              value={minBudget}
+              onChange={(e) => {
+                setSelectedPreset("");
+                const val = Number(e.target.value);
+                setMinBudget(val);
+                if (val > maxBudget) setMaxBudget(val + 5000);
+              }}
+              className="h-1.5 w-full accent-red-500 cursor-pointer bg-zinc-800 rounded-lg"
+            />
           </div>
-          <input
-            type="range"
-            min={10000}
-            max={70000}
-            step={2000}
-            value={maxPriceSlider}
-            onChange={(e) => {
-              setUseSlider(true);
-              setSelectedPriceRange("");
-              setMaxPriceSlider(Number(e.target.value));
-            }}
-            className="h-2 w-full accent-red-500 cursor-pointer bg-zinc-800 rounded-lg"
-          />
+
+          <div className="flex flex-col gap-1">
+            <div className="flex items-center justify-between text-[11px] text-zinc-400">
+              <span>Máximo:</span>
+              <span className="font-mono font-bold text-white">{formatCOP(maxBudget)}</span>
+            </div>
+            <input
+              type="range"
+              min={20000}
+              max={120000}
+              step={5000}
+              value={maxBudget}
+              onChange={(e) => {
+                setSelectedPreset("");
+                const val = Number(e.target.value);
+                setMaxBudget(val);
+                if (val < minBudget) setMinBudget(Math.max(0, val - 5000));
+              }}
+              className="h-1.5 w-full accent-red-500 cursor-pointer bg-zinc-800 rounded-lg"
+            />
+          </div>
         </div>
       </div>
 
@@ -379,7 +417,9 @@ export function MarketplaceExplorer({
         </div>
 
         <span className="text-[11px] text-zinc-400 font-bold">
-          {filteredCortes.length} resultados
+          {viewMode === "cortes"
+            ? `${filteredCortes.length} cortes disponibles`
+            : `${filteredShops.length} barberías encontradas`}
         </span>
       </div>
 
@@ -450,30 +490,28 @@ export function MarketplaceExplorer({
                       </p>
                     )}
 
-                    <div className="flex items-center justify-between rounded-xl bg-black/50 p-2.5 border border-white/5 text-xs">
+                    <div className="flex items-center justify-between border-t border-white/10 pt-2.5 text-xs text-zinc-400">
                       <div className="flex items-center gap-2 min-w-0">
-                        <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-zinc-800 text-white font-black text-[10px] border border-white/10">
+                        <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg bg-zinc-800 border border-white/10 text-[10px] font-black text-white">
                           {corte.shopName[0]}
                         </div>
-                        <div className="min-w-0">
-                          <p className="truncate font-bold text-white text-[11px]">{corte.shopName}</p>
-                          <p className="truncate text-[10px] text-zinc-400">{corte.shopAddress}, {corte.shopCity}</p>
-                        </div>
+                        <span className="truncate font-bold text-white text-[11px]">
+                          {corte.shopName}
+                        </span>
                       </div>
 
-                      <span className="flex items-center gap-1 font-bold text-amber-400 text-[11px] shrink-0">
-                        <Star className="h-3 w-3 fill-amber-400" />
-                        <span>{corte.shopRating || 5.0}</span>
+                      <span className="shrink-0 text-[10px] text-zinc-500 font-medium">
+                        {corte.shopCity}
                       </span>
                     </div>
                   </div>
                 </div>
 
-                {/* Bottom Booking Button */}
-                <div className="p-3.5 pt-0">
+                {/* Direct Booking Button for this Cut */}
+                <div className="px-3.5 pb-3.5">
                   <Link
                     href={`/b/${corte.shopSlug}?serviceId=${corte.id}`}
-                    className="btn-red flex h-11 w-full items-center justify-center gap-2 rounded-xl text-xs font-black uppercase tracking-wider shadow-lg shadow-red-500/20 active:scale-[0.98]"
+                    className="btn-red flex h-10 w-full items-center justify-center gap-1.5 rounded-2xl text-xs font-black uppercase tracking-wider shadow-lg shadow-red-500/20"
                   >
                     <span>Agendar este Corte</span>
                     <ChevronRight className="h-4 w-4" />
@@ -482,17 +520,14 @@ export function MarketplaceExplorer({
               </div>
             ))
           ) : (
-            <div className="col-span-2 rounded-3xl border border-white/10 bg-zinc-900/60 p-8 text-center text-zinc-400">
+            <div className="col-span-full rounded-3xl border border-white/10 bg-zinc-900/60 p-8 text-center text-zinc-400">
               <Scissors className="mx-auto h-8 w-8 text-zinc-600 mb-2" />
-              <p className="text-sm font-bold text-white">No hay cortes con este filtro</p>
-              <p className="text-xs text-zinc-500 mt-1">
-                Prueba ampliando el rango de precio o buscando otro estilo.
-              </p>
+              <p className="text-sm font-bold text-white">No se encontraron cortes con estos filtros</p>
               <button
                 onClick={clearFilters}
-                className="mt-4 rounded-xl border border-white/20 bg-zinc-800 px-4 py-2 text-xs font-bold text-white hover:bg-zinc-700"
+                className="mt-3 text-xs font-bold text-red-400 underline"
               >
-                Restablecer Filtros
+                Restablecer búsqueda
               </button>
             </div>
           )}
@@ -500,76 +535,75 @@ export function MarketplaceExplorer({
       )}
 
       {/* ========================================================= */}
-      {/* VISTA 2: LISTA DE BARBERÍAS (SEDES)                       */}
+      {/* VISTA 2: LISTA DE BARBERÍAS (CARDS HORIZONTALES COMPACTAS)  */}
       {/* ========================================================= */}
       {viewMode === "shops" && (
-        <div className="flex flex-col gap-4">
-          {filteredShops.length > 0 ? (
-            filteredShops.map((shop) => {
-              const startPrice = Math.min(...shop.services.map((s) => s.price), 20000);
+        <div className="flex flex-col gap-3">
+          {displayedShops.length > 0 ? (
+            displayedShops.map((shop) => {
+              const prices = shop.services.map((s) => s.price);
+              const minPrice = prices.length > 0 ? Math.min(...prices) : 18000;
+              const maxPrice = prices.length > 0 ? Math.max(...prices) : 45000;
+
               return (
                 <div
                   key={shop.id}
-                  className="app-card overflow-hidden border border-white/10 p-0 shadow-2xl transition-all hover:border-red-500/40"
+                  className="app-card overflow-hidden border border-white/10 p-3 shadow-xl transition-all hover:border-red-500/40 bg-zinc-900/90 flex items-center gap-3.5"
                 >
-                  <div className="relative h-36 w-full overflow-hidden bg-zinc-900">
+                  {/* Foto Izquierda */}
+                  <div className="relative h-26 w-26 sm:h-28 sm:w-28 shrink-0 overflow-hidden rounded-2xl bg-zinc-950 border border-white/10">
                     <img
                       src={shop.coverUrl || "/logo.jpg"}
                       alt={shop.name}
-                      className="h-full w-full object-cover"
+                      className="h-full w-full object-cover transition-transform duration-500 hover:scale-105"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent" />
-
-                    <div className="absolute right-3 top-3 flex items-center gap-1 rounded-full bg-black/80 px-2.5 py-1 text-xs font-black text-amber-400 backdrop-blur-md border border-white/10">
-                      <Star className="h-3.5 w-3.5 fill-amber-400" />
-                      <span>{shop.rating || 5.0}</span>
-                    </div>
-
-                    <div className="absolute left-3 top-3">
-                      <span className="rounded-full bg-red-600 px-3 py-1 text-[11px] font-black text-white shadow-lg">
-                        Desde {formatCOP(startPrice)}
-                      </span>
-                    </div>
-
-                    <div className="absolute bottom-3 left-3 right-3 flex items-center gap-2.5">
-                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-white/20 bg-black text-white font-black text-xs">
-                        {shop.name[0]}
-                      </div>
-                      <div className="min-w-0">
-                        <h3 className="truncate text-base font-black text-white">
-                          {shop.name}
-                        </h3>
-                        <p className="truncate text-xs text-zinc-300 flex items-center gap-1">
-                          <MapPin className="h-3 w-3 text-red-500 shrink-0" />
-                          <span>{shop.address}, {shop.city}</span>
-                        </p>
-                      </div>
-                    </div>
                   </div>
 
-                  <div className="p-4 flex flex-col gap-3">
-                    <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar">
-                      {shop.services.slice(0, 3).map((s) => (
-                        <span
-                          key={s.id}
-                          className="shrink-0 rounded-lg bg-zinc-800/80 px-2.5 py-1 text-[11px] font-bold text-zinc-300 border border-white/5"
-                        >
-                          {s.name} · <span className="text-red-400 font-mono">{formatCOP(s.price)}</span>
-                        </span>
-                      ))}
+                  {/* Contenido Derecha */}
+                  <div className="flex-1 min-w-0 flex flex-col justify-between py-0.5 gap-1">
+                    <div className="flex items-center justify-between gap-1">
+                      {/* Rating */}
+                      <div className="flex items-center gap-1 text-xs font-black text-amber-400">
+                        <div className="flex items-center">
+                          <Star className="h-3 w-3 fill-amber-400" />
+                          <Star className="h-3 w-3 fill-amber-400" />
+                          <Star className="h-3 w-3 fill-amber-400" />
+                          <Star className="h-3 w-3 fill-amber-400" />
+                          <Star className="h-3 w-3 fill-amber-400" />
+                        </div>
+                        <span>{shop.rating || 5.0}</span>
+                      </div>
+
+                      <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">
+                        {shop.city}
+                      </span>
                     </div>
 
-                    <div className="flex items-center justify-between border-t border-white/10 pt-3">
-                      <span className="text-xs text-zinc-400 font-medium">
-                        {shop.barbers.length} barberos disponibles
-                      </span>
+                    <h3 className="truncate text-sm font-black text-white leading-tight">
+                      {shop.name}
+                    </h3>
+
+                    <p className="truncate text-[11px] text-zinc-400 flex items-center gap-1">
+                      <MapPin className="h-3 w-3 text-red-500 shrink-0" />
+                      <span>{shop.address}</span>
+                    </p>
+
+                    <div className="flex items-center justify-between mt-1 gap-2">
+                      <div className="flex flex-col">
+                        <span className="text-[9px] font-black uppercase text-zinc-500 tracking-wider">
+                          Rango de Precios
+                        </span>
+                        <span className="font-mono text-xs font-black text-red-400">
+                          Desde {formatCOP(minPrice)}
+                        </span>
+                      </div>
 
                       <Link
                         href={`/b/${shop.slug}`}
-                        className="btn-red flex h-10 items-center justify-center gap-1.5 rounded-full px-5 text-xs font-black uppercase tracking-wider"
+                        className="btn-red flex h-8 items-center justify-center gap-1 rounded-xl px-3.5 text-xs font-black uppercase tracking-wider shrink-0 shadow-md shadow-red-500/20"
                       >
-                        <span>Ver Sede & Cortes</span>
-                        <ChevronRight className="h-4 w-4" />
+                        <span>Agendar</span>
+                        <ChevronRight className="h-3.5 w-3.5" />
                       </Link>
                     </div>
                   </div>
@@ -578,8 +612,26 @@ export function MarketplaceExplorer({
             })
           ) : (
             <div className="rounded-3xl border border-white/10 bg-zinc-900/60 p-8 text-center text-zinc-400">
-              <p className="text-sm font-bold text-white">No se encontraron barberías</p>
+              <Store className="mx-auto h-8 w-8 text-zinc-600 mb-2" />
+              <p className="text-sm font-bold text-white">No se encontraron barberías con estos filtros</p>
+              <button
+                onClick={clearFilters}
+                className="mt-3 text-xs font-bold text-red-400 underline"
+              >
+                Restablecer búsqueda
+              </button>
             </div>
+          )}
+
+          {/* Límite de 10 sedes con botón de ver más si hay más de 10 */}
+          {filteredShops.length > shopsLimit && (
+            <button
+              onClick={() => setShopsLimit((prev) => prev + 10)}
+              className="w-full py-3 mt-1 rounded-2xl border border-white/10 bg-zinc-900 text-xs font-black text-white uppercase tracking-wider hover:bg-zinc-800 transition-colors flex items-center justify-center gap-1.5"
+            >
+              <span>Ver más barberías (+{filteredShops.length - shopsLimit})</span>
+              <ChevronDown className="h-4 w-4 text-red-500" />
+            </button>
           )}
         </div>
       )}
@@ -627,7 +679,7 @@ export function MarketplaceExplorer({
               }}
             />
 
-            {/* Floating Card for Selected Pin (Rediseñada y Proporcionada) */}
+            {/* Floating Card for Selected Pin */}
             {activeShop && (
               <div
                 id="floating-selected-shop-card"

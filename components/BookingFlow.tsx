@@ -152,7 +152,7 @@ export function BookingFlow({
 
   const days = useMemo(() => {
     const today = todayBogotaClient();
-    return Array.from({ length: 14 }, (_, i) => addDaysStr(today, i));
+    return Array.from({ length: 31 }, (_, i) => addDaysStr(today, i));
   }, []);
 
   const categories = useMemo(() => {
